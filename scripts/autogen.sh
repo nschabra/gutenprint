@@ -4,30 +4,21 @@
 
 DIE=0
 
-if test -d m4local ; then
+if test -d "$srcdir/m4/local" || test -d m4local ; then
   :
 else
-  echo "Directory \`m4local' does not exist.  Creating it."
-  if test -e m4local ; then
-    echo "**Error**: A file \`m4local' exists and is not a directory."
-    echo "Please remove it."
-    DIE=1
-  fi
-  mkdir m4local
+  mkdir -p "$srcdir/m4/local"
 fi
 
-if test -d m4 ; then
-  rm -rf m4
-elif test -e m4 ; then
-  echo "**Error**: A file \`m4local' exists and is not a directory."
-  echo "Please remove it."
-  exit 1
-fi
-
-mkdir m4
+mkdir -p "$srcdir/m4"
+rm -f "$srcdir"/m4/*.m4
 
 # shellcheck disable=SC2006,SC2154
-test -f "$srcdir/configure.ac" && sed "s/XXXRELEASE_DATE=XXX/RELEASE_DATE=\"`date '+%d %b %Y'`\"/" "$srcdir/m4extra/stp_release.m4.in" > "$srcdir/m4/stp_release.m4"
+if test -f "$srcdir/m4/extra/stp_release.m4.in" ; then
+  sed "s/XXXRELEASE_DATE=XXX/RELEASE_DATE=\"`date '+%d %b %Y'`\"/" "$srcdir/m4/extra/stp_release.m4.in" > "$srcdir/m4/stp_release.m4"
+elif test -f "$srcdir/m4extra/stp_release.m4.in" ; then
+  sed "s/XXXRELEASE_DATE=XXX/RELEASE_DATE=\"`date '+%d %b %Y'`\"/" "$srcdir/m4extra/stp_release.m4.in" > "$srcdir/m4/stp_release.m4"
+fi
 
 # Make sure all of our auto* bits are up to date.
 autoreconf -ivf
@@ -75,7 +66,7 @@ fi
   DIE=1
 }
 
-test -f "$srcdir/ChangeLog" || echo > "$srcdir/ChangeLog"
+test -f "$srcdir/doc/history/ChangeLog" || echo > "$srcdir/doc/history/ChangeLog"
 
 (grep "^AM_PROG_LIBTOOL" "$srcdir/configure.ac" >/dev/null) && {
   (libtool --version) < /dev/null > /dev/null 2>&1 || {

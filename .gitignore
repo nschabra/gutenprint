@@ -8,6 +8,8 @@
 *.tar*
 *.trs
 BuildLogs/**
+/build/
+build/
 
 # Random noise
 tags

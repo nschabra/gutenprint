@@ -13,7 +13,8 @@ Index all committed delivery plans for `Gutenprint`.
 | S.No. | Plan Scope | Code | TL | PD | IP | CD | Status |
 | ---: | --- | --- | ---: | ---: | ---: | ---: | --- |
 | 1 | [`01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md`](./01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md) | `G1010` | 7 | 0 | 0 | 7 | Active |
-| 2 | Total | — | **7** | **0** | **0** | **7** | Complete |
+| 2 | [`02-architecture/PLN002-root-level-files-restructuring-and-clean-layout-plan.md`](./02-architecture/PLN002-root-level-files-restructuring-and-clean-layout-plan.md) | `ROOTLAY` | 6 | 0 | 0 | 6 | Active |
+| 3 | Total | — | **13** | **0** | **0** | **13** | Complete |
 
 ## Footer Navigation
 

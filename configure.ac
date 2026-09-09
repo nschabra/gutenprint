@@ -164,7 +164,7 @@ LIBS="${LIBS:=}"
 
 dnl Initialize automake stuff.
 dnl We use our own NEWS file check, as explained in Makefile.am.
-AM_INIT_AUTOMAKE(1.9 dist-xz dist-bzip2 no-dist-gzip tar-ustar gnu)
+AM_INIT_AUTOMAKE(1.9 dist-xz dist-bzip2 no-dist-gzip tar-ustar foreign)
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 popdef([GUTENPRINT_NAME])
 popdef([GUTENPRINT_VERSION])
