@@ -33,6 +33,10 @@
  *   write_ppd()         - Write a PPD file.
  */
 
+#ifndef _DARWIN_C_SOURCE
+#define _DARWIN_C_SOURCE 1
+#endif
+
 #include "i18n.h"
 #ifdef HAVE_CONFIG_H
 #include <config.h>

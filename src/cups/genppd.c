@@ -1309,6 +1309,9 @@ write_ppd(
   else
     gpputs(fp, "*cupsManualCopies: True\n");
 
+  /* Secure supply querying: disable plain SNMP broadcast probing */
+  gpputs(fp, "*cupsSNMPSupplies: False\n");
+
   stp_describe_parameter(v, "CommandFilterName", &desc);
   if (desc.p_type == STP_PARAMETER_TYPE_STRING_LIST && desc.is_active)
     {
@@ -1773,6 +1776,39 @@ write_ppd(
 	}
     }
   stp_parameter_description_destroy(&desc);
+
+#ifdef __APPLE__
+  if (printer_is_color)
+    {
+      gpputs(fp, "*APPrinterPreset Color/Color: \"\n"
+                 "\t*ColorModel RGB\n"
+                 "\tcom.apple.print.preset.graphicsType General\n"
+                 "\tcom.apple.print.preset.quality mid\n"
+                 "\tcom.apple.print.preset.output-mode color\"\n"
+                 "*End\n");
+      gpputs(fp, "*APPrinterPreset BlackAndWhite/Black and White: \"\n"
+                 "\t*ColorModel Gray\n"
+                 "\tcom.apple.print.preset.graphicsType General\n"
+                 "\tcom.apple.print.preset.quality mid\n"
+                 "\tcom.apple.print.preset.output-mode monochrome\"\n"
+                 "*End\n");
+      gpputs(fp, "*APPrinterPreset Photo/Photo on Photo Paper: \"\n"
+                 "\t*ColorModel RGB\n"
+                 "\tcom.apple.print.preset.graphicsType Photo\n"
+                 "\tcom.apple.print.preset.quality high\n"
+                 "\tcom.apple.print.preset.output-mode color\"\n"
+                 "*End\n");
+    }
+  else
+    {
+      gpputs(fp, "*APPrinterPreset BlackAndWhite/Black and White: \"\n"
+                 "\t*ColorModel Gray\n"
+                 "\tcom.apple.print.preset.graphicsType General\n"
+                 "\tcom.apple.print.preset.quality mid\n"
+                 "\tcom.apple.print.preset.output-mode monochrome\"\n"
+                 "*End\n");
+    }
+#endif
 
   if (!language)
     {
