@@ -10,6 +10,7 @@ Documentation quality, standards, and physical codebase coverage.
 
 | S.No. | Record | Description | Status |
 | ---: | --- | --- | --- |
+| 1 | [`DOC001`](./DOC001-canon-g1010-macos-airprint-guide.md) | Canon PIXMA G1010 macOS & AirPrint Operator Guide | Active |
 
 ## Footer Navigation
 

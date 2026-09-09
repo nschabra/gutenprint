@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="50%" stop-color="#f8fafc" />
+      <stop offset="100%" stop-color="#f1f5f9" />
+    </linearGradient>
+    <linearGradient id="cyanGradL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="magGradL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f43f5e" />
+      <stop offset="100%" stop-color="#e11d48" />
+    </linearGradient>
+    <linearGradient id="yelGradL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#eab308" />
+      <stop offset="100%" stop-color="#ca8a04" />
+    </linearGradient>
+    <linearGradient id="blkGradL" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <filter id="shadowLight" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#64748b" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <!-- macOS Window Frame -->
+  <g filter="url(#shadowLight)">
+    <rect x="16" y="14" width="928" height="308" rx="16" fill="url(#bgLight)" stroke="#cbd5e1" stroke-width="1.5"/>
+    <!-- Titlebar -->
+    <path d="M 16 30 Q 16 14 32 14 L 928 14 Q 944 14 944 30 L 944 54 L 16 54 Z" fill="#f8fafc" />
+    <line x1="16" y1="54" x2="944" y2="54" stroke="#cbd5e1" stroke-width="1" />
+  </g>
+
+  <!-- Window Traffic Lights -->
+  <circle cx="42" cy="34" r="6.5" fill="#FF5F56" stroke="#E0443E" stroke-width="0.5"/>
+  <circle cx="62" cy="34" r="6.5" fill="#FFBD2E" stroke="#DEA123" stroke-width="0.5"/>
+  <circle cx="82" cy="34" r="6.5" fill="#27C93F" stroke="#1AAB29" stroke-width="0.5"/>
+
+  <text x="480" y="38" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif" font-size="12.5" font-weight="500" text-anchor="middle">
+    gutenprint-5.3.5 — Canon PIXMA G1010 &amp; macOS AirPrint Hub
+  </text>
+
+  <!-- Left Content Column -->
+  <g transform="translate(48, 80)">
+    <!-- Category Pill -->
+    <rect x="0" y="0" width="220" height="24" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="1" />
+    <circle cx="12" cy="12" r="4" fill="#0284c7" />
+    <text x="24" y="16" fill="#0369a1" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" letter-spacing="0.8">
+      MACOS NATIVE CUPS DRIVER
+    </text>
+
+    <!-- Main Title -->
+    <text x="0" y="58" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5">
+      Gutenprint 5.3.5
+    </text>
+    <text x="235" y="58" fill="#0284c7" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5">
+      G1010 Edition
+    </text>
+
+    <!-- Subtitle -->
+    <text x="0" y="86" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13.5" font-weight="400">
+      Enterprise-grade driver integration, full color gamut rasterization, and
+    </text>
+    <text x="0" y="106" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13.5" font-weight="400">
+      native Living Room AirPrint advertising for Apple iOS, iPadOS &amp; macOS.
+    </text>
+
+    <!-- Badges Row -->
+    <g transform="translate(0, 134)">
+      <!-- Badge 1: Architecture -->
+      <rect x="0" y="0" width="108" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="54" y="17" fill="#334155" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">Apple Silicon</text>
+
+      <!-- Badge 2: AirPrint -->
+      <rect x="116" y="0" width="100" height="26" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="166" y="17" fill="#0284c7" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">AirPrint 2.0</text>
+
+      <!-- Badge 3: DPI -->
+      <rect x="224" y="0" width="112" height="26" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+      <text x="280" y="17" fill="#16a34a" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">4800×1200 DPI</text>
+
+      <!-- Badge 4: Governance -->
+      <rect x="344" y="0" width="118" height="26" rx="6" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1"/>
+      <text x="403" y="17" fill="#9333ea" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">ProjectOps v2</text>
+    </g>
+
+    <!-- Command Prompt Box -->
+    <g transform="translate(0, 178)">
+      <rect x="0" y="0" width="462" height="34" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+      <text x="14" y="22" fill="#0284c7" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="12" font-weight="600">$</text>
+      <text x="30" y="22" fill="#0f172a" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="12">./bin/g1010-ctl status</text>
+      <text x="210" y="22" fill="#16a34a" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="11"># Live ANSI Ink Gauges</text>
+    </g>
+  </g>
+
+  <!-- Right Visual Column: Ink Tank Meters & AirPrint Waves -->
+  <g transform="translate(560, 80)">
+    <!-- Container Card -->
+    <rect x="0" y="0" width="340" height="212" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+
+    <!-- Header inside card -->
+    <text x="20" y="28" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13" font-weight="600">
+      GI-790 Ink Tank Telemetry
+    </text>
+    <circle cx="316" cy="24" r="4.5" fill="#16a34a" />
+    <circle cx="316" cy="24" r="8" fill="none" stroke="#16a34a" stroke-width="1.2" opacity="0.6"/>
+
+    <!-- Ink Gauges -->
+    <!-- Black Tank (75%) -->
+    <g transform="translate(20, 48)">
+      <text x="0" y="14" fill="#334155" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Black (Pigment)</text>
+      <text x="250" y="14" fill="#64748b" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">75%</text>
+      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
+      <rect x="0" y="22" width="188" height="8" rx="4" fill="url(#blkGradL)"/>
+    </g>
+
+    <!-- Cyan Tank (50%) -->
+    <g transform="translate(20, 84)">
+      <text x="0" y="14" fill="#0284c7" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Cyan (Dye)</text>
+      <text x="250" y="14" fill="#0284c7" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">50%</text>
+      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
+      <rect x="0" y="22" width="125" height="8" rx="4" fill="url(#cyanGradL)"/>
+    </g>
+
+    <!-- Magenta Tank (33%) -->
+    <g transform="translate(20, 120)">
+      <text x="0" y="14" fill="#e11d48" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Magenta (Dye)</text>
+      <text x="250" y="14" fill="#e11d48" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">33%</text>
+      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
+      <rect x="0" y="22" width="82" height="8" rx="4" fill="url(#magGradL)"/>
+    </g>
+
+    <!-- Yellow Tank (67%) -->
+    <g transform="translate(20, 156)">
+      <text x="0" y="14" fill="#ca8a04" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Yellow (Dye)</text>
+      <text x="250" y="14" fill="#ca8a04" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">67%</text>
+      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
+      <rect x="0" y="22" width="167" height="8" rx="4" fill="url(#yelGradL)"/>
+    </g>
+
+    <!-- Wireless AirPrint Indicator Icon -->
+    <g transform="translate(286, 110)">
+      <path d="M 0 50 A 28 28 0 0 1 28 22" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
+      <path d="M 0 50 A 18 18 0 0 1 18 32" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
+      <circle cx="0" cy="50" r="4" fill="#16a34a"/>
+    </g>
+  </g>
+</svg>
