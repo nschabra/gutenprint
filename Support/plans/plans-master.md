@@ -12,7 +12,8 @@ Index all committed delivery plans for `Gutenprint`.
 
 | S.No. | Plan Scope | Code | TL | PD | IP | CD | Status |
 | ---: | --- | --- | ---: | ---: | ---: | ---: | --- |
-| 1 | **Total** | — | **0** | **0** | **0** | **0** | Complete |
+| 1 | [`01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md`](./01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md) | `G1010` | 7 | 0 | 0 | 7 | Active |
+| 2 | Total | — | **7** | **0** | **0** | **7** | Complete |
 
 ## Footer Navigation
 

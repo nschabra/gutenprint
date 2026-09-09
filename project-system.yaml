@@ -1,0 +1,34 @@
+project:
+  name: "Gutenprint 5.3.5 — Canon PIXMA G1010 & macOS AirPrint"
+  shortcode: gp5
+  theme: macos
+
+repository:
+  folder_naming: hybrid-standard
+  fallback_shortcode: gp5
+
+folders:
+  core:
+    path: src
+    purpose: "Core C printer drivers, raster filter, and printer capability XML definitions"
+  include:
+    path: include
+    purpose: "Public C library header definitions"
+  tools:
+    path: bin
+    purpose: "Operator and developer CLI tools including g1010-ctl"
+  support:
+    path: Support
+    purpose: "ProjectOps v2 repository governance, architecture, ADRs, and plans"
+  build:
+    path: scripts
+    purpose: "Autotools and build orchestration scripts"
+  tests:
+    path: test
+    purpose: "Automated regression and driver validation test suite"
+  documentation:
+    path: doc
+    purpose: "User manuals, release notes, and reference documentation"
+  packaging:
+    path: macosx
+    purpose: "macOS native package and installer scripts"
