@@ -102,6 +102,12 @@ const char *special_options[] =
   "Quality",
   "Duplex",
   "Collate",
+#ifdef __APPLE__
+  "InkType",
+  "InkSet",
+  "CDInnerRadius",
+  "Orientation",
+#endif
   NULL
 };
 
@@ -684,6 +690,7 @@ print_color_setup(gpFile fp, int simplified, int printer_is_color,
 		 ">>setpagedevice\"\n",
              _("Color"), CUPS_CSPACE_RGB, CUPS_ORDER_CHUNKED,
 	     simplified ? "/cupsBitsPerColor 8/cupsPreferredBitsPerColor 16" : "");
+#ifndef __APPLE__
     if (!simplified)
     {
       gpprintf(fp, "*ColorModel Black/%s:\t\"<<"
@@ -707,12 +714,14 @@ print_color_setup(gpFile fp, int simplified, int printer_is_color,
 		   ">>setpagedevice\"\n",
                _("KCMY"), CUPS_CSPACE_KCMY, CUPS_ORDER_CHUNKED);
     }
+#endif
   }
 
   gpputs(fp, "*CloseUI: *ColorModel\n\n");
 #ifdef __APPLE__
   gpputs(fp, "*CloseGroup: Color\n\n");
 #endif
+#ifndef __APPLE__
   if (!simplified)
     {
       /*
@@ -731,6 +740,7 @@ print_color_setup(gpFile fp, int simplified, int printer_is_color,
 		   "/cupsPreferredBitsPerColor 16>>setpagedevice\"\n", _("Best"));
       gpputs(fp, "*CloseUI: *StpColorPrecision\n\n");
     }
+#endif
 }
 
 static void
@@ -746,8 +756,15 @@ print_group(
   const char *class = stp_i18n_lookup(po, parameter_class_names[p_class]);
   const char *level = stp_i18n_lookup(po, parameter_level_names[p_level]);
   size_t bytes = bytelen(class) + bytelen(level);
+#ifdef __APPLE__
+  const char *group_id = (p_class == 0) ? "Features" : "Adjustments";
+  const char *group_name = (p_class == 0) ? "Printer Features" : "Color Adjustments";
+  gpprintf(fp, "*%sGroup: %s/%s\n", what, group_id, group_name);
+#else
   snprintf(buf, 40, "%s%s%s", class, bytes < 39 ? " " : "", level);
   gpprintf(fp, "*%sGroup: C%dL%d/%s\n", what, p_class, p_level, buf);
+#endif
+#ifndef __APPLE__
   if (language && !strcmp(language, "C") && !strcmp(what, "Open"))
     {
       char		**all_langs = getlangs();/* All languages */
@@ -773,6 +790,7 @@ print_group(
             }
 	}
     }
+#endif
   gpputs(fp, "\n");
 }
 
@@ -1349,6 +1367,14 @@ write_ppd(
   gpputs(fp, "*APSupportsCustomColorMatching: true\n");
   gpputs(fp, "*APDefaultCustomColorMatchingProfile: sRGB\n");
   gpputs(fp, "*APCustomColorMatchingProfile: sRGB\n");
+  gpputs(fp, "*cupsBackSide: Normal\n");
+  gpputs(fp, "*OpenGroup: InstallableOptions/Installable Options\n");
+  gpputs(fp, "*OpenUI *OptionDuplex/Duplex Unit: Boolean\n");
+  gpputs(fp, "*DefaultOptionDuplex: True\n");
+  gpputs(fp, "*OptionDuplex True/Installed: \"\"\n");
+  gpputs(fp, "*OptionDuplex False/Not Installed: \"\"\n");
+  gpputs(fp, "*CloseUI: *OptionDuplex\n");
+  gpputs(fp, "*CloseGroup: InstallableOptions\n\n");
 #endif
 
   gpputs(fp, "\n");
@@ -1738,6 +1764,9 @@ write_ppd(
     }
   stp_parameter_description_destroy(&desc);
 
+#ifdef __APPLE__
+  gpputs(fp, "*OpenGroup: Layout/Layout Options\n\n");
+#endif
   gpprintf(fp, "*OpenUI *StpiShrinkOutput/%s: PickOne\n",
 	   _("Shrink Page If Necessary to Fit Borders"));
   gpputs(fp, "*OPOptionHints StpiShrinkOutput: \"radiobuttons\"\n");
@@ -1748,6 +1777,9 @@ write_ppd(
   gpprintf(fp, "*StpiShrinkOutput %s/%s: \"\"\n", "Crop", _("Crop (preserve dimensions)"));
   gpprintf(fp, "*StpiShrinkOutput %s/%s: \"\"\n", "Expand", _("Expand (use maximum page area)"));
   gpputs(fp, "*CloseUI: *StpiShrinkOutput\n\n");
+#ifdef __APPLE__
+  gpputs(fp, "*CloseGroup: Layout\n\n");
+#endif
 
   param_list = stp_get_parameter_list(v);
 

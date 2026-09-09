@@ -15,7 +15,7 @@
 *% along with this program.  If not, see <https://www.gnu.org/licenses/>.
 *%
 *FormatVersion:	"4.3"
-*FileVersion:	"5.3.3"
+*FileVersion:	"5.3.5"
 *LanguageVersion: English
 *LanguageEncoding: UTF-8
 *PCFileName:	"STP04563.PPD"
@@ -23,7 +23,7 @@
 *Product:	"(Canon PIXMA G1010)"
 *ModelName:     "Canon PIXMA G1000"
 *ShortNickName: "Canon PIXMA G1010"
-*NickName:      "Canon PIXMA G1010 - CUPS+Gutenprint v5.3.3"
+*NickName:      "Canon PIXMA G1010 - CUPS+Gutenprint v5.3.5 Simplified"
 *PSVersion:	"(3010.000) 0"
 *LanguageLevel:	"3"
 *ColorDevice:	True
@@ -41,13 +41,7 @@
 *APSupportsCustomColorMatching: true
 *APDefaultCustomColorMatchingProfile: sRGB
 *APCustomColorMatchingProfile: sRGB
-
-*StpDriverName:	"bjc-PIXMA-G1010"
-*StpDriverModelFamily:	"17001000_canon"
-*StpPPDLocation: "/usr/share/cups/model/gutenprint/5.3/en/stp-bjc-PIXMA-G1010.5.3.sim.ppd"
-*StpLocale:	"en"
-*VariablePaperSize: true
-
+*cupsBackSide: Normal
 *OpenGroup: InstallableOptions/Installable Options
 *OpenUI *OptionDuplex/Duplex Unit: Boolean
 *DefaultOptionDuplex: True
@@ -55,6 +49,13 @@
 *OptionDuplex False/Not Installed: ""
 *CloseUI: *OptionDuplex
 *CloseGroup: InstallableOptions
+
+
+*StpDriverName:	"bjc-PIXMA-G1010"
+*StpDriverModelFamily:	"17001000_canon"
+*StpPPDLocation: "/usr/share/cups/model/gutenprint/5.3/C/stp-bjc-PIXMA-G1010.5.3.sim.ppd"
+*StpLocale:	"C"
+*VariablePaperSize: true
 
 *OpenUI *PageSize/Media Size: PickOne
 *OPOptionHints PageSize: "dropdown"
@@ -239,6 +240,8 @@
 
 *CloseGroup: Finishing
 
+*OpenGroup: Layout/Layout Options
+
 *OpenUI *StpiShrinkOutput/Shrink Page If Necessary to Fit Borders: PickOne
 *OPOptionHints StpiShrinkOutput: "radiobuttons"
 *OrderDependency: 10 AnySetup *StpiShrinkOutput
@@ -249,39 +252,9 @@
 *StpiShrinkOutput Expand/Expand (use maximum page area): ""
 *CloseUI: *StpiShrinkOutput
 
-*OpenGroup: C0L0/Printer Features Common
+*CloseGroup: Layout
 
-*OpenUI *StpCDInnerRadius/CD Hub Size: PickOne
-*OrderDependency: 10 AnySetup *StpCDInnerRadius
-*OPOptionHints StpCDInnerRadius: "radiobuttons"
-*StpStpCDInnerRadius: 0 1 0 0 255 0.000 0.000 0.000
-*DefaultStpCDInnerRadius: None
-*StpDefaultStpCDInnerRadius: None
-*StpCDInnerRadius None/Normal: ""
-*StpCDInnerRadius Small/Print To Hub: ""
-*CloseUI: *StpCDInnerRadius
-
-*ColorKeyWords: "StpInkType"
-*OpenUI *StpInkType/Ink Type: PickOne
-*OrderDependency: 10 AnySetup *StpInkType
-*OPOptionHints StpInkType: "radiobuttons"
-*StpStpInkType: 0 1 0 0 255 0.000 0.000 0.000
-*DefaultStpInkType: CMYK
-*StpDefaultStpInkType: CMYK
-*StpInkType CMYK/CMYK Color: ""
-*StpInkType RGB/CMY Color: ""
-*StpInkType Gray/Black: ""
-*CloseUI: *StpInkType
-
-*ColorKeyWords: "StpInkSet"
-*OpenUI *StpInkSet/Ink Set: PickOne
-*OrderDependency: 10 AnySetup *StpInkSet
-*OPOptionHints StpInkSet: "radiobuttons"
-*StpStpInkSet: 0 1 0 0 255 0.000 0.000 0.000
-*DefaultStpInkSet: None
-*StpDefaultStpInkSet: None
-*StpInkSet None/None: ""
-*CloseUI: *StpInkSet
+*OpenGroup: Features/Printer Features
 
 *OpenUI *StpFullBleed/Borderless: PickOne
 *OrderDependency: 10 AnySetup *StpFullBleed
@@ -293,21 +266,9 @@
 *StpFullBleed True/Yes: ""
 *CloseUI: *StpFullBleed
 
-*OpenUI *StpOrientation/Orientation: PickOne
-*OrderDependency: 10 AnySetup *StpOrientation
-*OPOptionHints StpOrientation: "dropdown"
-*StpStpOrientation: 0 1 0 0 255 0.000 0.000 0.000
-*DefaultStpOrientation: Portrait
-*StpDefaultStpOrientation: Portrait
-*StpOrientation Portrait/Portrait: ""
-*StpOrientation Landscape/Landscape: ""
-*StpOrientation UpsideDown/Reverse Portrait: ""
-*StpOrientation Seascape/Reverse Landscape: ""
-*CloseUI: *StpOrientation
+*CloseGroup: Features/Printer Features
 
-*CloseGroup: C0L0/Printer Features Common
-
-*OpenGroup: C1L0/Output Control Common
+*OpenGroup: Adjustments/Color Adjustments
 
 *ColorKeyWords: "StpColorCorrection"
 *OpenUI *StpColorCorrection/Color Correction: PickOne
@@ -532,7 +493,7 @@
 *StpImageType LineArt/Line Art: ""
 *CloseUI: *StpImageType
 
-*CloseGroup: C1L0/Output Control Common
+*CloseGroup: Adjustments/Color Adjustments
 
 *APPrinterPreset Text/Text: "*StpImageType Text"
 *APPrinterPreset Graphics/Graphics: "*StpImageType Graphics"

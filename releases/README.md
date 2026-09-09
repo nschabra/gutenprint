@@ -8,7 +8,7 @@ Official distribution repository for Canon PIXMA G1010 high-performance driver a
 
 | S.No. | Release Package | Version | Date | Target macOS | SHA256 Checksum |
 | ---: | --- | --- | --- | --- | --- |
-| 1 | [`Canon-PIXMA-G1010-v5.3.5.pkg`](./Canon-PIXMA-G1010-v5.3.5.pkg) | `5.3.5` | 2026-09-09 | macOS 12+ (Apple Silicon & Intel) | `cf919db751f3ed1c7908a2fc8b42153d9f97502992b4fe9fc697a3b61a31bdf6` |
+| 1 | [`Canon-PIXMA-G1010-v5.3.5.pkg`](./Canon-PIXMA-G1010-v5.3.5.pkg) | `5.3.5` | 2026-09-09 | macOS 12+ (Apple Silicon & Intel) | `593faa9b0df51653147d2c4d2045d0b2b8ba45eb5392db682e4d34f1f3a98010` |
 
 ---
 
