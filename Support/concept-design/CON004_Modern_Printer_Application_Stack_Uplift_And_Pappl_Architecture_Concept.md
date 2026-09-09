@@ -5,8 +5,9 @@
 
 # Concept — Modern Printer Application Stack Uplift & PAPPL Architecture (`CON004`)
 
-> **Parent:** [`concept-design-master.md`](./concept-design-master.md) · **Status:** `Proposed` · **Date:** 2026-09-09
-> **Cross-cut:** none · **Architecture:** [`ARC_20260909_A`](../architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md)
+> **Parent:** [`concept-design-master.md`](./concept-design-master.md) · **Status:** `Accepted` · **Date:** 2026-09-09
+> **Cross-cut:** none · **Decision:** [`DEC_20260909_A`](../decisions/DEC_20260909_A_adopt_pappl_driverless_architecture_and_swiftui.md)
+> **Architecture:** [`ARC_20260909_B`](../architecture/ARC_20260909_B_modern_pappl_printer_application_and_swiftui_companion.md) · **Fed Plan:** [`PLN006`](../plans/06-modernization/PLN006-modern-pappl-printer-application-and-macos-swiftui-companion-plan.md)
 
 ---
 

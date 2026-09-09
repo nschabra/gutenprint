@@ -17,7 +17,8 @@ Index all committed delivery plans for `Gutenprint`.
 | 3 | [`03-packaging/PLN003-github-publication-and-enterprise-documentation-plan.md`](./03-packaging/PLN003-github-publication-and-enterprise-documentation-plan.md) | `PUBDOC` | 6 | 0 | 0 | 6 | Active |
 | 4 | [`04-ui-ux/PLN004-macos-native-print-dialog-controls-presets-and-status-plan.md`](./04-ui-ux/PLN004-macos-native-print-dialog-controls-presets-and-status-plan.md) | `MACUI` | 11 | 0 | 0 | 11 | Active |
 | 5 | [`05-distribution/PLN005-homebrew-console-distribution-and-standalone-release-pkg-pipeline-plan.md`](./05-distribution/PLN005-homebrew-console-distribution-and-standalone-release-pkg-pipeline-plan.md) | `DIST` | 7 | 0 | 0 | 7 | Active |
-| 6 | Total | — | **37** | **0** | **0** | **37** | Active |
+| 6 | [`06-modernization/PLN006-modern-pappl-printer-application-and-macos-swiftui-companion-plan.md`](./06-modernization/PLN006-modern-pappl-printer-application-and-macos-swiftui-companion-plan.md) | `PAPPL` | 15 | 15 | 0 | 0 | Active |
+| 7 | Total | — | **52** | **15** | **0** | **37** | Active |
 
 ## Footer Navigation
 

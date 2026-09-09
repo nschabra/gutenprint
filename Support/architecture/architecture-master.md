@@ -11,6 +11,7 @@ System boundary, component interactions, and current/target state.
 | S.No. | Record | Description | Status |
 | ---: | --- | --- | --- |
 | 1 | [`ARC_20260909_A`](./ARC_20260909_A_canon_g1010_macos_airprint_architecture.md) | Canon PIXMA G1010 macOS & AirPrint Architecture | Active |
+| 2 | [`ARC_20260909_B`](./ARC_20260909_B_modern_pappl_printer_application_and_swiftui_companion.md) | Modern PAPPL Printer Application & macOS SwiftUI Companion | Active |
 
 ## Footer Navigation
 
