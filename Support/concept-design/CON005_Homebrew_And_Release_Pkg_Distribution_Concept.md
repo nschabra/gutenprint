@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/concept-design-dark.svg">
-  <img alt="Concept Design" src="./assets/concept-design-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/distribution-channels-dark.svg">
+  <img alt="Distribution Channels Architecture" src="./assets/distribution-channels-light.svg" width="100%">
 </picture>
 
 # Concept — Homebrew Console Distribution & Release PKG Pipeline (`CON005`)
@@ -22,33 +22,12 @@ Distributing printer drivers to macOS users requires addressing two distinct use
 
 ## 2. Distribution Channels Architecture
 
-```text
- ┌─────────────────────────────────────────────────────────────────────────────┐
- │                         Distribution Intake Layers                          │
- │  ┌─────────────────────────────────────┐   ┌─────────────────────────────┐  │
- │  │ Homebrew Console Formula            │   │ Standalone Release PKG      │  │
- │  │ • Formula/canon-pixma-g1010.rb      │   │ • releases/Canon-G1010-*.pkg│  │
- │  │ • brew install / brew services      │   │ • Native macOS Installer UI │  │
- │  └──────────────────┬──────────────────┘   └──────────────┬──────────────┘  │
- └─────────────────────┼─────────────────────────────────────┼─────────────────┘
-                       │                                     │
-                       ├─────────────────────────────────────┤
-                       ▼                                     ▼
- ┌─────────────────────────────────────────────────────────────────────────────┐
- │                            Installed Artifacts                              │
- │  1. PPD File: /Library/Printers/PPDs/Contents/Resources/Canon_G1010.ppd     │
- │  2. CLI Companion: /usr/local/bin/canon-g1010                               │
- │  3. Background Daemon: ~/Library/LaunchAgents/com.local.ippeveprinter.plist │
- └─────────────────────────────────────┬───────────────────────────────────────┘
-                                       │
-                                       ▼
- ┌─────────────────────────────────────────────────────────────────────────────┐
- │                     System Configuration & Execution                        │
- │  • CUPS AirPrint Destination: Canon_G1010_2 (Default, IPP Port 8631)        │
- │  • Driverless IPP Everywhere with Apple UI Groups & Presets                 │
- │  • Native macOS Two-Sided & Color Checkboxes in Preview / Print Dialog      │
- └─────────────────────────────────────────────────────────────────────────────┘
-```
+Dual-channel ingestion routing to a unified local print environment:
+
+| Channel | Persona | Invocation | Package Artifact |
+| ---: | --- | --- | --- |
+| 1 | CLI / Power-User | `brew install ./Formula/canon-pixma-g1010.rb` | [`Formula/canon-pixma-g1010.rb`](../../Formula/canon-pixma-g1010.rb) |
+| 2 | Desktop GUI | Double-click or `installer -pkg ...` | [`releases/Canon-PIXMA-G1010-v5.3.5.pkg`](../../releases/Canon-PIXMA-G1010-v5.3.5.pkg) |
 
 ---
 

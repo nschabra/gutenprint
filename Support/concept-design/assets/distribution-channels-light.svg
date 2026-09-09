@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgLight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7fbff"/>
+      <stop offset="40%" stop-color="#d8f7ff" stop-opacity="0.6"/>
+      <stop offset="80%" stop-color="#ede9fe" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#fae8ff" stop-opacity="0.3"/>
+    </linearGradient>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="960" height="480" rx="16" fill="url(#bgLight)"/>
+
+  <!-- Title & Subtitle -->
+  <text x="480" y="45" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', Roboto, sans-serif" font-size="20" font-weight="700" fill="#111827">Canon PIXMA G1010 — Dual Distribution Channels</text>
+  <text x="480" y="70" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto, sans-serif" font-size="12" fill="#475569">Homebrew Console &amp; Standalone Apple PKG Release Pipeline</text>
+
+  <!-- Channel 1: Homebrew Console Panel -->
+  <g filter="url(#shadow)">
+    <rect x="50" y="95" width="410" height="155" rx="12" fill="#ffffff" fill-opacity="0.75" stroke="#2f7dff" stroke-width="2"/>
+    <rect x="50" y="95" width="410" height="34" rx="12" fill="#2f7dff" fill-opacity="0.12"/>
+    <text x="70" y="118" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="14" font-weight="700" fill="#2f7dff">Channel 1: Homebrew Console (CLI / Power User)</text>
+    
+    <text x="70" y="152" font-family="ui-monospace, monospace" font-size="12" fill="#111827">$ brew install ./Formula/canon-pixma-g1010.rb</text>
+    <text x="70" y="176" font-family="ui-monospace, monospace" font-size="12" fill="#111827">$ brew services start canon-pixma-g1010</text>
+    <text x="70" y="200" font-family="ui-monospace, monospace" font-size="12" fill="#111827">$ canon-g1010 setup &amp;&amp; canon-g1010 status</text>
+    <text x="70" y="228" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" fill="#475569">Automated headless setup, instant CLI telemetry, service lifecycle.</text>
+  </g>
+
+  <!-- Channel 2: Release PKG Panel -->
+  <g filter="url(#shadow)">
+    <rect x="500" y="95" width="410" height="155" rx="12" fill="#ffffff" fill-opacity="0.75" stroke="#00a676" stroke-width="2"/>
+    <rect x="500" y="95" width="410" height="34" rx="12" fill="#00a676" fill-opacity="0.12"/>
+    <text x="520" y="118" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="14" font-weight="700" fill="#00a676">Channel 2: Standalone Release PKG (End-User GUI)</text>
+
+    <text x="520" y="152" font-family="ui-monospace, monospace" font-size="12" fill="#111827">releases/Canon-PIXMA-G1010-v5.3.5.pkg</text>
+    <text x="520" y="176" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="12" fill="#111827">• Apple pkgbuild/productbuild with postinstall script</text>
+    <text x="520" y="200" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="12" fill="#111827">• One-click GUI installer with administrative authorization</text>
+    <text x="520" y="228" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" fill="#475569">Zero terminal interaction required for standard desktop end users.</text>
+  </g>
+
+  <!-- Connecting Lines -->
+  <path d="M 255 250 L 255 290 L 480 290 L 480 310" fill="none" stroke="#2f7dff" stroke-width="2" stroke-dasharray="4,4"/>
+  <path d="M 705 250 L 705 290 L 480 290 L 480 310" fill="none" stroke="#00a676" stroke-width="2" stroke-dasharray="4,4"/>
+
+  <!-- System Provisioning Panel -->
+  <g filter="url(#shadow)">
+    <rect x="120" y="310" width="720" height="145" rx="12" fill="#ffffff" fill-opacity="0.85" stroke="#7a3cff" stroke-width="2"/>
+    <rect x="120" y="310" width="720" height="34" rx="12" fill="#7a3cff" fill-opacity="0.12"/>
+    <text x="480" y="333" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="14" font-weight="700" fill="#7a3cff">Unified macOS Target: Driverless AirPrint &amp; Calibrated PPD</text>
+
+    <!-- Details Columns -->
+    <text x="150" y="370" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="12" font-weight="700" fill="#111827">Installed Assets:</text>
+    <text x="150" y="392" font-family="ui-monospace, monospace" font-size="11" fill="#475569">• /Library/Printers/PPDs/.../Canon_PIXMA_G1010.ppd</text>
+    <text x="150" y="412" font-family="ui-monospace, monospace" font-size="11" fill="#475569">• /usr/local/bin/canon-g1010</text>
+    <text x="150" y="432" font-family="ui-monospace, monospace" font-size="11" fill="#475569">• ~/Library/LaunchAgents/com.local.ippeveprinter.plist</text>
+
+    <text x="520" y="370" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="12" font-weight="700" fill="#111827">Runtime Environment:</text>
+    <text x="520" y="392" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" fill="#475569">• Queue: Canon_G1010_2 (Default AirPrint Destination)</text>
+    <text x="520" y="412" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" fill="#475569">• Top-level native [x] Two-Sided and [x] B&amp;W checkboxes</text>
+    <text x="520" y="432" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" fill="#475569">• Single daemon listening on port 8631 (Zero duplicate daemons)</text>
+  </g>
+</svg>

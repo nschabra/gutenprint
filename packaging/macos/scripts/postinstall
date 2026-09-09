@@ -1,0 +1,79 @@
+#!/bin/bash
+# ==============================================================================
+# postinstall — Canon PIXMA G1010 Package Post-Installation Script
+# ==============================================================================
+set -e
+
+LOG_FILE="/var/log/canon-g1010-install.log"
+exec >> "$LOG_FILE" 2>&1
+
+echo "=== [$(date)] Starting Canon PIXMA G1010 Driver Post-Install ==="
+
+# 1. Identify active console user
+CONSOLE_USER=$(stat -f '%Su' /dev/console 2>/dev/null || echo "")
+CONSOLE_UID=$(stat -f '%u' /dev/console 2>/dev/null || echo "")
+echo "Detected console user: $CONSOLE_USER (UID: $CONSOLE_UID)"
+
+# 2. Permissions for installed files
+if [ -f "/Library/Printers/PPDs/Contents/Resources/Canon_PIXMA_G1010.ppd" ]; then
+    chmod 644 "/Library/Printers/PPDs/Contents/Resources/Canon_PIXMA_G1010.ppd"
+    chown root:wheel "/Library/Printers/PPDs/Contents/Resources/Canon_PIXMA_G1010.ppd"
+fi
+
+if [ -f "/usr/local/bin/canon-g1010" ]; then
+    chmod 755 "/usr/local/bin/canon-g1010"
+    chown root:wheel "/usr/local/bin/canon-g1010"
+fi
+
+# 3. Setup LaunchAgent
+PLIST_DST="/Library/LaunchAgents/com.local.ippeveprinter.plist"
+if [ -f "$PLIST_DST" ]; then
+    chmod 644 "$PLIST_DST"
+    chown root:wheel "$PLIST_DST"
+
+    if [ -n "$CONSOLE_UID" ] && [ "$CONSOLE_UID" -ge 501 ]; then
+        echo "Loading LaunchAgent into gui/$CONSOLE_UID..."
+        launchctl bootout "gui/$CONSOLE_UID" "$PLIST_DST" 2>/dev/null || true
+        launchctl bootstrap "gui/$CONSOLE_UID" "$PLIST_DST" 2>/dev/null || true
+    fi
+fi
+
+# 4. Wait for IPP service to become active
+echo "Waiting for IPP Everywhere listener on port 8631..."
+for i in {1..6}; do
+    if nc -z 127.0.0.1 8631 2>/dev/null; then
+        echo "IPP service is active."
+        break
+    fi
+    sleep 0.5
+done
+
+# 5. Provision AirPrint Queue
+QUEUE_NAME="Canon_G1010_2"
+QUEUE_DESC="Canon PIXMA G1010 (AirPrint - Native UI)"
+echo "Configuring AirPrint queue: $QUEUE_NAME..."
+
+lpadmin -p "$QUEUE_NAME" -E \
+    -v "ipp://localhost:8631/ipp/print" \
+    -m everywhere \
+    -D "$QUEUE_DESC" 2>/dev/null || true
+
+lpadmin -d "$QUEUE_NAME" 2>/dev/null || true
+cupsenable "$QUEUE_NAME" 2>/dev/null || true
+cupsaccept "$QUEUE_NAME" 2>/dev/null || true
+
+# 6. Check USB queue setup
+USB_URI=$(lpinfo -v 2>/dev/null | grep -i "Canon" | grep -i "G1010" | head -n 1 | awk '{print $2}' || true)
+if [ -n "$USB_URI" ]; then
+    echo "Detected USB device: $USB_URI. Configuring fallback queue Canon_G1010..."
+    lpadmin -p "Canon_G1010" -E \
+        -v "$USB_URI" \
+        -P "/Library/Printers/PPDs/Contents/Resources/Canon_PIXMA_G1010.ppd" \
+        -D "Canon PIXMA G1010 (USB Driver)" \
+        -o OptionDuplex=True 2>/dev/null || true
+    cupsenable "Canon_G1010" 2>/dev/null || true
+    cupsaccept "Canon_G1010" 2>/dev/null || true
+fi
+
+echo "=== [$(date)] Canon PIXMA G1010 Post-Install Completed Successfully ==="
+exit 0

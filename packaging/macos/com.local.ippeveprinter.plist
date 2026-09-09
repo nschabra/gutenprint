@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.local.ippeveprinter</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/ippeveprinter</string>
+        <string>-p</string>
+        <string>8631</string>
+        <string>-l</string>
+        <string>Living Room</string>
+        <string>-m</string>
+        <string>Canon PIXMA G1010</string>
+        <string>-M</string>
+        <string>Canon</string>
+        <string>-s</string>
+        <string>9,5</string>
+        <string>-2</string>
+        <string>-r</string>
+        <string>_print,_universal,_color</string>
+        <string>-f</string>
+        <string>application/pdf,image/jpeg,image/png,image/urf,image/pwg-raster</string>
+        <string>-c</string>
+        <string>/Users/m1/PrintServer/print_wrapper.sh</string>
+        <string>Canon G1010</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/Users/m1/PrintServer/ippeve.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/m1/PrintServer/ippeve_error.log</string>
+</dict>
+</plist>
