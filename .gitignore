@@ -185,3 +185,9 @@ xml-stamp
 
 # Things that we *do* need
 !src/xml/printers
+
+# OS & IDE files
+.DS_Store
+*/.DS_Store
+.vscode/
+.idea/

@@ -1,0 +1,381 @@
+#!/usr/bin/env python3
+"""
+Canon PIXMA G1010 Console Installation & Configuration Tool (g1010-ctl)
+Gutenprint Driver Management, Color/B&W Mode Switching, and Supply Monitoring.
+"""
+
+import sys
+import os
+import subprocess
+import argparse
+import re
+import urllib.request
+import ssl
+
+# ANSI Color Codes
+RESET = "\033[0m"
+BOLD = "\033[1m"
+DIM = "\033[2m"
+RED = "\033[31m"
+GREEN = "\033[32m"
+YELLOW = "\033[33m"
+BLUE = "\033[34m"
+MAGENTA = "\033[35m"
+CYAN = "\033[36m"
+WHITE = "\033[37m"
+
+DEFAULT_USB_PRINTER = "Canon_G1010"
+DEFAULT_AIRPRINT_PRINTER = "Canon_G1010_2"
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "../.."))
+
+def print_banner():
+    print(f"\n{BOLD}{CYAN}==============================================================={RESET}")
+    print(f"{BOLD}{WHITE}   Canon PIXMA G1010 - Console Control & Installation Tool{RESET}")
+    print(f"{DIM}         Gutenprint 5.3.5 / macOS & AirPrint Management{RESET}")
+    print(f"{BOLD}{CYAN}==============================================================={RESET}\n")
+
+def get_cups_printers():
+    try:
+        out = subprocess.check_output(["lpstat", "-p", "-d", "-v"], stderr=subprocess.DEVNULL, text=True)
+        printers = {}
+        for line in out.splitlines():
+            m = re.match(r"^printer\s+([^\s]+)\s+is\s+([^\.]+)", line)
+            if m:
+                p_name, p_state = m.group(1), m.group(2).strip()
+                if p_name not in printers:
+                    printers[p_name] = {"state": p_state, "device": ""}
+            m_dev = re.match(r"^device for ([^:]+):\s+(.*)", line)
+            if m_dev:
+                p_name, dev_uri = m_dev.group(1), m_dev.group(2).strip()
+                if p_name in printers:
+                    printers[p_name]["device"] = dev_uri
+        return printers
+    except Exception:
+        return {}
+
+def get_printer_options(printer_name):
+    try:
+        out = subprocess.check_output(["lpoptions", "-p", printer_name, "-l"], stderr=subprocess.DEVNULL, text=True)
+        options = {}
+        for line in out.splitlines():
+            if ":" in line:
+                key_part, val_part = line.split(":", 1)
+                opt_key = key_part.split("/")[0].strip()
+                choices = val_part.strip().split()
+                default = None
+                for c in choices:
+                    if c.startswith("*"):
+                        default = c[1:]
+                        break
+                options[opt_key] = {"default": default, "choices": choices}
+        return options
+    except Exception:
+        return {}
+
+def get_ipp_supplies():
+    supplies = []
+    try:
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        req = urllib.request.Request("https://127.0.0.1:8631/supplies")
+        with urllib.request.urlopen(req, context=ctx, timeout=2) as resp:
+            html = resp.read().decode("utf-8", errors="ignore")
+            rows = re.findall(r"<tr><th>([^:<]+):?</th>.*?value=[\"'](\d+)[\"']", html)
+            for name, val in rows:
+                supplies.append((name.strip(), int(val)))
+    except Exception:
+        pass
+    return supplies
+
+def render_meter(val, color_code):
+    bar_width = 25
+    filled = int(round((val / 100.0) * bar_width))
+    empty = bar_width - filled
+    bar = f"{color_code}{'█' * filled}{DIM}{'░' * empty}{RESET}"
+    return f"[{bar}] {BOLD}{val:3d}%{RESET}"
+
+def cmd_status(args):
+    print_banner()
+    printers = get_cups_printers()
+    
+    if not printers:
+        print(f"{YELLOW}No CUPS printer queues found.{RESET}\n")
+        return
+
+    print(f"{BOLD}Configured CUPS Printer Queues:{RESET}")
+    for p_name, info in printers.items():
+        state_color = GREEN if "idle" in info["state"].lower() else YELLOW
+        print(f"  • {BOLD}{p_name}{RESET}: {state_color}{info['state']}{RESET}")
+        print(f"    {DIM}Device: {info['device']}{RESET}")
+
+        opts = get_printer_options(p_name)
+        color_model = opts.get("ColorModel", {}).get("default", "N/A")
+        duplex = opts.get("Duplex", {}).get("default", "N/A")
+        quality = opts.get("cupsPrintQuality", {}).get("default") or opts.get("StpQuality", {}).get("default", "N/A")
+
+        cm_display = f"{GREEN}{BOLD}Color (RGB/CMYK){RESET}" if "rgb" in color_model.lower() or "cmyk" in color_model.lower() else f"{WHITE}Monochrome ({color_model}){RESET}"
+        print(f"    Mode:   {cm_display}")
+        print(f"    Duplex: {BOLD}{duplex}{RESET}")
+        print(f"    Quality:{BOLD} {quality}{RESET}")
+        print()
+
+    # Ink Supplies
+    supplies = get_ipp_supplies()
+    if supplies:
+        print(f"{BOLD}AirPrint / Living Room Ink Supplies Status:{RESET}")
+        for name, val in supplies:
+            c = WHITE
+            if "black" in name.lower():
+                c = WHITE
+            elif "cyan" in name.lower():
+                c = CYAN
+            elif "magenta" in name.lower():
+                c = MAGENTA
+            elif "yellow" in name.lower():
+                c = YELLOW
+            elif "waste" in name.lower():
+                c = RED
+            meter = render_meter(val, c)
+            print(f"  {c}{BOLD}{name:<16}{RESET} {meter}")
+        print()
+    else:
+        print(f"{DIM}Note: Supplies polling offline or printer not queried yet.{RESET}\n")
+
+def cmd_set_mode(args):
+    mode = args.mode.lower()
+    printer = args.printer or DEFAULT_USB_PRINTER
+    color_choice = "RGB" if mode in ["color", "colour", "rgb", "cmyk"] else "Gray"
+
+    print(f"Configuring default Color Mode for {BOLD}{printer}{RESET} to: {BOLD}{color_choice}{RESET}...")
+    try:
+        subprocess.run(["lpoptions", "-p", printer, "-o", f"ColorModel={color_choice}"], check=True)
+        subprocess.run(["lpadmin", "-p", printer, "-o", f"ColorModel-default={color_choice}"], check=False)
+        print(f"{GREEN}✓ Successfully set {printer} default mode to {color_choice}!{RESET}\n")
+    except Exception as e:
+        print(f"{RED}✗ Failed to set mode: {e}{RESET}\n")
+
+def cmd_set_duplex(args):
+    duplex = args.duplex.lower()
+    printer = args.printer or DEFAULT_USB_PRINTER
+    
+    if duplex in ["on", "true", "yes", "duplex", "long"]:
+        choice = "DuplexNoTumble"
+    elif duplex in ["short", "tumble"]:
+        choice = "DuplexTumble"
+    else:
+        choice = "None"
+
+    print(f"Configuring default Two-Sided (Duplex) for {BOLD}{printer}{RESET} to: {BOLD}{choice}{RESET}...")
+    try:
+        subprocess.run(["lpoptions", "-p", printer, "-o", f"Duplex={choice}"], check=True)
+        subprocess.run(["lpadmin", "-p", printer, "-o", f"Duplex-default={choice}"], check=False)
+        print(f"{GREEN}✓ Successfully set {printer} Duplex to {choice}!{RESET}\n")
+    except Exception as e:
+        print(f"{RED}✗ Failed to set duplex: {e}{RESET}\n")
+
+def cmd_install(args):
+    print_banner()
+    print(f"{BOLD}Starting Automated Gutenprint 5.3.5 PPD Installation for G1010...{RESET}\n")
+    
+    genppd_bin = os.path.join(REPO_ROOT, "src/cups/cups-genppd.5.3")
+    xml_path = os.path.join(REPO_ROOT, "src/xml")
+    module_path = f"{REPO_ROOT}/src/main/.libs:{REPO_ROOT}/src/main"
+    out_dir = "/tmp/g1010_install"
+    os.makedirs(out_dir, exist_ok=True)
+
+    if not os.path.exists(genppd_bin):
+        print(f"{YELLOW}Building cups-genppd.5.3...{RESET}")
+        subprocess.check_call(["make", "-C", os.path.join(REPO_ROOT, "src/cups")], cwd=REPO_ROOT)
+
+    print(f"Generating optimized native PPD for Canon PIXMA G1010...")
+    env = os.environ.copy()
+    env["STP_MODULE_PATH"] = module_path
+    env["STP_DATA_PATH"] = xml_path
+    
+    subprocess.check_call([genppd_bin, "-p", out_dir, "-Z", "-l", "en", "bjc-PIXMA-G1010"], env=env)
+    
+    ppd_path = os.path.join(out_dir, "stp-bjc-PIXMA-G1010.5.3.ppd")
+    if not os.path.exists(ppd_path):
+        print(f"{RED}Error: Generated PPD not found at {ppd_path}{RESET}")
+        return
+
+    with open(ppd_path, "r") as f:
+        ppd_content = f.read()
+
+    duplex_block = """*OpenUI *Duplex/Two-Sided: PickOne
+*OrderDependency: 10 AnySetup *Duplex
+*DefaultDuplex: None
+*Duplex None/Off: "<</Duplex false>>setpagedevice"
+*Duplex DuplexNoTumble/Long-Edge (standard): "<</Duplex true/Tumble false>>setpagedevice"
+*Duplex DuplexTumble/Short-Edge (flip): "<</Duplex true/Tumble true>>setpagedevice"
+*CloseUI: *Duplex
+"""
+    if "*OpenUI *Duplex" not in ppd_content:
+        ppd_content = ppd_content.replace("*OpenUI *MediaType", duplex_block + "\n*OpenUI *MediaType")
+        with open(ppd_path, "w") as f:
+            f.write(ppd_content)
+
+    print(f"Validating PPD syntax with cupstestppd...")
+    subprocess.run(["cupstestppd", "-W", "none", ppd_path], check=False)
+
+    target_queue = args.printer or DEFAULT_USB_PRINTER
+    print(f"Updating CUPS Queue {BOLD}{target_queue}{RESET} with latest driver...")
+    subprocess.check_call(["lpadmin", "-p", target_queue, "-P", ppd_path])
+    print(f"{GREEN}✓ Successfully installed native Gutenprint 5.3.5 PPD for {target_queue}!{RESET}\n")
+
+def cmd_test_print(args):
+    printer = args.printer or DEFAULT_USB_PRINTER
+    mode = "Color" if args.color else ("BW" if args.bw else "Color")
+    color_model = "RGB" if mode == "Color" else "Gray"
+
+    print(f"Generating test calibration page ({BOLD}{mode}{RESET}) for {BOLD}{printer}{RESET}...")
+    
+    ps_content = f"""%!PS
+/Helvetica-Bold findfont 24 scalefont setfont
+100 700 moveto (Canon PIXMA G1010 Test Page) show
+/Helvetica findfont 14 scalefont setfont
+100 670 moveto (Gutenprint 5.3.5 Driver - Mode: {mode}) show
+
+% Draw Color Bands
+gsave
+100 550 80 80 rectfill % Black
+grestore
+
+gsave
+0 0.8 0.8 setrgbcolor
+200 550 80 80 rectfill % Cyan
+grestore
+
+gsave
+0.8 0 0.8 setrgbcolor
+300 550 80 80 rectfill % Magenta
+grestore
+
+gsave
+0.9 0.9 0 setrgbcolor
+400 550 80 80 rectfill % Yellow
+grestore
+
+/Helvetica findfont 10 scalefont setfont
+100 535 moveto (BLACK) show
+210 535 moveto (CYAN) show
+305 535 moveto (MAGENTA) show
+410 535 moveto (YELLOW) show
+
+showpage
+"""
+    tmp_ps = f"/tmp/g1010_test_{mode}.ps"
+    with open(tmp_ps, "w") as f:
+        f.write(ps_content)
+
+    cmd = ["lp", "-d", printer, "-o", f"ColorModel={color_model}", "-t", f"G1010_{mode}_Test", tmp_ps]
+    print(f"Sending print job via command: {' '.join(cmd)}")
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    if res.returncode == 0:
+        print(f"{GREEN}✓ Print job sent successfully: {res.stdout.strip()}{RESET}\n")
+    else:
+        print(f"{RED}✗ Error sending print job: {res.stderr.strip()}{RESET}\n")
+
+def cmd_menu(args):
+    while True:
+        print_banner()
+        print(f"Select an action:")
+        print(f"  {BOLD}1{RESET}) View Printer & Ink Status")
+        print(f"  {BOLD}2{RESET}) Set Default Mode to {GREEN}{BOLD}Color (RGB){RESET}")
+        print(f"  {BOLD}3{RESET}) Set Default Mode to {WHITE}{BOLD}Black & White (Gray){RESET}")
+        print(f"  {BOLD}4{RESET}) Toggle Two-Sided (Duplex) Setting")
+        print(f"  {BOLD}5{RESET}) Re-install / Update Latest Gutenprint 5.3.5 PPD")
+        print(f"  {BOLD}6{RESET}) Print Color Test Page")
+        print(f"  {BOLD}7{RESET}) Print Black & White Test Page")
+        print(f"  {BOLD}8{RESET}) Open Supplies Webpage in Browser")
+        print(f"  {BOLD}Q{RESET}) Quit\n")
+
+        choice = input("Enter choice [1-8, Q]: ").strip().lower()
+        if choice == "1":
+            cmd_status(args)
+            input("\nPress Enter to continue...")
+        elif choice == "2":
+            args.mode = "color"
+            args.printer = None
+            cmd_set_mode(args)
+            input("\nPress Enter to continue...")
+        elif choice == "3":
+            args.mode = "bw"
+            args.printer = None
+            cmd_set_mode(args)
+            input("\nPress Enter to continue...")
+        elif choice == "4":
+            opts = get_printer_options(DEFAULT_USB_PRINTER)
+            curr = opts.get("Duplex", {}).get("default", "None")
+            new_val = "None" if curr != "None" else "DuplexNoTumble"
+            args.duplex = new_val
+            args.printer = None
+            cmd_set_duplex(args)
+            input("\nPress Enter to continue...")
+        elif choice == "5":
+            args.printer = None
+            cmd_install(args)
+            input("\nPress Enter to continue...")
+        elif choice == "6":
+            args.color = True
+            args.bw = False
+            args.printer = None
+            cmd_test_print(args)
+            input("\nPress Enter to continue...")
+        elif choice == "7":
+            args.color = False
+            args.bw = True
+            args.printer = None
+            cmd_test_print(args)
+            input("\nPress Enter to continue...")
+        elif choice == "8":
+            subprocess.run(["open", "https://localhost:8631/supplies"])
+        elif choice in ["q", "quit", "exit"]:
+            print(f"\n{GREEN}Goodbye!{RESET}\n")
+            break
+
+def main():
+    parser = argparse.ArgumentParser(description="Canon G1010 Console Configuration & Management Tool")
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
+    p_status = subparsers.add_parser("status", help="Show printer queues, mode, and ink supplies")
+
+    p_mode = subparsers.add_parser("set-mode", help="Set printer default mode (color or bw)")
+    p_mode.add_argument("mode", choices=["color", "bw", "rgb", "gray"], help="Color mode to set")
+    p_mode.add_argument("-p", "--printer", help="Target printer queue name")
+
+    p_duplex = subparsers.add_parser("set-duplex", help="Set two-sided printing option")
+    p_duplex.add_argument("duplex", choices=["on", "off", "short", "long"], help="Duplex setting")
+    p_duplex.add_argument("-p", "--printer", help="Target printer queue name")
+
+    p_install = subparsers.add_parser("install", help="Install / regenerate latest Gutenprint 5.3.5 PPD")
+    p_install.add_argument("-p", "--printer", help="Target printer queue name")
+
+    p_test = subparsers.add_parser("test-print", help="Send a test print page")
+    p_test.add_argument("--color", action="store_true", help="Print in color")
+    p_test.add_argument("--bw", action="store_true", help="Print in black & white")
+    p_test.add_argument("-p", "--printer", help="Target printer queue name")
+
+    p_menu = subparsers.add_parser("menu", help="Launch interactive console menu")
+
+    args = parser.parse_args()
+
+    if args.command == "status":
+        cmd_status(args)
+    elif args.command == "set-mode":
+        cmd_set_mode(args)
+    elif args.command == "set-duplex":
+        cmd_set_duplex(args)
+    elif args.command == "install":
+        cmd_install(args)
+    elif args.command == "test-print":
+        cmd_test_print(args)
+    elif args.command == "menu":
+        cmd_menu(args)
+    else:
+        cmd_status(args)
+
+if __name__ == "__main__":
+    main()
