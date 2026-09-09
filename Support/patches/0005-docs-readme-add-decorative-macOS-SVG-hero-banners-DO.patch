@@ -1,0 +1,695 @@
+From 5d005fe1b0e4fb3f88b4947086427afbc4f6d42b Mon Sep 17 00:00:00 2001
+From: nschabra <nschabra.work@gmail.com>
+Date: Wed, 9 Sep 2026 06:17:52 +0530
+Subject: [PATCH 5/5] docs(readme): add decorative macOS SVG hero banners,
+ DOC001 guide, and updated taxonomy links
+
+---
+ README.md                                     | 211 +++++++++++++++---
+ ...DOC001-canon-g1010-macos-airprint-guide.md |  97 ++++++++
+ .../documentation/assets/g1010_hero-dark.svg  | 163 ++++++++++++++
+ .../documentation/assets/g1010_hero-light.svg | 151 +++++++++++++
+ Support/documentation/documentation-master.md |   1 +
+ 5 files changed, 589 insertions(+), 34 deletions(-)
+ create mode 100644 Support/documentation/DOC001-canon-g1010-macos-airprint-guide.md
+ create mode 100644 Support/documentation/assets/g1010_hero-dark.svg
+ create mode 100644 Support/documentation/assets/g1010_hero-light.svg
+
+diff --git a/README.md b/README.md
+index f25f2edf..624d3382 100644
+--- a/README.md
++++ b/README.md
+@@ -1,52 +1,195 @@
+-# Gutenprint 5.3.5 — Enhanced with Canon PIXMA G1010 & macOS AirPrint
++<div align="center">
+ 
+-This repository is an enhanced distribution of **Gutenprint 5.3.5** tailored for modern macOS and Haiku systems, featuring native driver support and management tools for the **Canon PIXMA G1010** ink-tank printer family.
++<picture>
++  <source media="(prefers-color-scheme: dark)" srcset="./Support/documentation/assets/g1010_hero-dark.svg">
++  <img alt="Gutenprint 5.3.5 — Canon PIXMA G1010 & macOS AirPrint Hub" src="./Support/documentation/assets/g1010_hero-light.svg" width="100%">
++</picture>
++
++<br/>
++
++[![Platform](https://img.shields.io/badge/Platform-macOS%20Sequoia%20%7C%20Sonoma%20%7C%20Ventura-007AFF?style=for-the-badge&logo=apple&logoColor=white)](https://apple.com)
++[![Architecture](https://img.shields.io/badge/Architecture-Apple%20Silicon%20(ARM64)%20%7C%20x86__64-34C759?style=for-the-badge&logo=apple&logoColor=white)](https://apple.com)
++[![Protocol](https://img.shields.io/badge/Protocol-IPP%20Everywhere%20%2F%20AirPrint%202.0-0A84FF?style=for-the-badge&logo=airplayvideo&logoColor=white)](./Support/architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md)
++[![Governance](https://img.shields.io/badge/Governance-ProjectOps%20v2%20(LXC)-AF52DE?style=for-the-badge)](./Support/support-master.md)
++[![License](https://img.shields.io/badge/License-GNU%20GPL%20v2-FF9500?style=for-the-badge)](./COPYING)
++
++<p align="center">
++  <b>High-Performance Open-Source Print Subsystem with Native Canon PIXMA G1010 Support, Apple GUI Presets, Living Room AirPrint Broadcast, and Terminal Management Console.</b>
++</p>
+ 
+ ---
+ 
+-## Key Features
+-
+-1. **Native Canon PIXMA G1010 Support**:
+-   - Model definition with accurate CMYK color mapping, resolution matrices (up to 4800x1200 dpi), and borderless photo paper profiles.
+-2. **Apple GUI Presets & macOS ColorSync**:
+-   - Native macOS print panel presets: **Color**, **Black & White**, and **Photo on Photo Paper**.
+-   - Two-Sided (Duplex) software workflow enabled in standard print dialogs.
+-   - Built-in cybersecurity protection (`*cupsSNMPSupplies: False`) to prevent unauthenticated network SNMP hangs.
+-3. **Living Room AirPrint & Web UI Integration**:
+-   - Automated IPP Everywhere / AirPrint service (`ippeveprinter`) with live ink supplies reporting at `https://<ip>:8631/supplies`.
+-   - Full options forwarding from iOS and macOS devices to the CUPS printer queue.
+-4. **Console-Based Installation & Control Tool (`g1010-ctl`)**:
+-   - Interactive terminal manager located at [`src/cups/g1010-ctl`](./src/cups/g1010-ctl).
+-   - Visual ANSI ink level meters, one-command PPD installation, Color/B&W mode switching, and calibration test prints.
+-5. **Project Governance**:
+-   - Managed under [ProjectOps v2](./Support/support-master.md) governance (`Support/`).
++</div>
++
++## 🌟 Executive Overview
++
++This repository provides an enterprise-hardened distribution of **Gutenprint 5.3.5** specifically optimized for modern macOS (Apple Silicon & Intel) and network environments. It introduces native driver and rasterization support for the **Canon PIXMA G1010** ink-tank printer family, full integration with macOS Cocoa print sheets, bidirectional AirPrint streaming from iOS/iPadOS devices, and zero-overhead terminal telemetry.
++
++The entire codebase is governed under the **[ProjectOps v2](./Support/support-master.md)** framework and follows a clean, modular repository taxonomy.
+ 
+ ---
+ 
+-## Console Quickstart
++## ⚡ Key Capabilities
++
++| Capability | Canon OEM Driver | Gutenprint 5.3.5 Enhanced | Operational Advantage |
++| :--- | :--- | :--- | :--- |
++| **macOS Native Architecture** | Legacy Rosetta x86_64 translation | Native Apple Silicon (ARM64) & Intel (x86_64) | Zero translation latency, minimal memory footprint |
++| **Apple Print Sheet Presets** | Generic defaults only | **Color**, **Black & White**, **Photo on Photo Paper** | 1-click toggling directly inside Safari, Preview, Pages & Word |
++| **Double-Sided (Duplex)** | Hardware duplex (unsupported, jams) | Software / Manual Long-Edge Duplex (`DuplexNoTumble`) | Flawless 2-sided booklet printing without hardware faults |
++| **Living Room AirPrint** | Requires proprietary vendor app | Native mDNS / DNS-SD IPP Everywhere (`ippeveprinter`) | Seamless driverless printing directly from iPhones & iPads |
++| **GI-790 Ink Telemetry** | Vendor dialog app only | Live Visual ANSI Meters & Web UI (`:8631/supplies`) | Real-time level monitoring directly in Terminal or browser |
++| **Cybersecurity Hardening** | Unauthenticated SNMP query hangs | Explicitly Disabled (`*cupsSNMPSupplies: False`) | Eliminates network timeout freezes and queue deadlocks |
++
++---
++
++## 🖥️ Console Control & Management Tool (`bin/g1010-ctl`)
++
++A zero-dependency Python 3 operator CLI is symlinked directly at the repository root: [`bin/g1010-ctl`](./bin/g1010-ctl).
+ 
++```text
++$ ./bin/g1010-ctl status
++
++===============================================================
++   Canon PIXMA G1010 - Console Control & Installation Tool
++         Gutenprint 5.3.5 / macOS & AirPrint Management
++===============================================================
++
++Configured CUPS Printer Queues:
++  • Canon_G1010: idle
++    Device: usb://Canon/G1010%20series?serial=004049
++    Mode:   Color (RGB/CMYK)
++    Duplex: None
++    Quality: Standard
++
++  • Canon_G1010_2: idle
++    Device: dnssd://Canon%20G1010._ipps._tcp.local./?uuid=adb6d191-406e-357a-54d4-2e8a4685fc1d
++    Mode:   Color (RGB/CMYK)
++    Duplex: None
++    Quality: Normal
++
++AirPrint / Living Room Ink Supplies Status:
++  Ink Waste Tank   [██████░░░░░░░░░░░░░░░░░░░]  25%
++  Black Ink        [███████████████████░░░░░░]  75%
++  Cyan Ink         [████████████░░░░░░░░░░░░░]  50%
++  Magenta Ink      [████████░░░░░░░░░░░░░░░░░]  33%
++  Yellow Ink       [█████████████████░░░░░░░░]  67%
++```
++
++### Essential Commands:
+ ```bash
+-# Check printer queue status & live ink levels
+-./src/cups/g1010-ctl status
++# 1. Live Telemetry & Queue Health
++./bin/g1010-ctl status
++
++# 2. Instant Color / Monochrome Mode Toggling
++./bin/g1010-ctl set-mode color
++./bin/g1010-ctl set-mode bw
+ 
+-# Set default mode to Color (RGB)
+-./src/cups/g1010-ctl set-mode color
++# 3. Two-Sided (Duplex) Software Workflow
++./bin/g1010-ctl set-duplex on
++./bin/g1010-ctl set-duplex off
+ 
+-# Set default mode to Black & White (Gray)
+-./src/cups/g1010-ctl set-mode bw
++# 4. Interactive ASCII Management Menu
++./bin/g1010-ctl menu
+ 
+-# Launch the interactive terminal menu
+-./src/cups/g1010-ctl menu
++# 5. Direct Calibration Test Prints
++./bin/g1010-ctl test-print --color
++./bin/g1010-ctl test-print --bw
+ 
+-# Send a calibration test print
+-./src/cups/g1010-ctl test-print --color
++# 6. One-Command CUPS PPD Deployment
++./bin/g1010-ctl install
+ ```
+ 
+ ---
+ 
+-## Project Documentation & Architecture
++## 🏗️ Building From Source (Out-of-Tree Paradigm)
++
++This project adopts the clean **out-of-tree build** standard, ensuring the source tree remains 100% pristine.
++
++### Prerequisites:
++- macOS with Xcode Command Line Tools (`clang`, `make`)
++- CUPS Development Headers & Libraries
++
++### Build Instructions:
++```bash
++# 1. Create and enter isolated build directory
++mkdir -p build && cd build
++
++# 2. Configure with modern Darwin flags
++../configure --without-gimp2 --without-doc CPPFLAGS="-D_DARWIN_C_SOURCE=1"
++
++# 3. Compile across all CPU cores
++make -j$(sysctl -n hw.ncpu)
++
++# 4. Install drivers & filters into system CUPS (requires root)
++sudo make install
++```
++
++---
++
++## 📂 Repository Architecture & File Taxonomy
++
++```
++gutenprint-5.3.5/
++├── bin/                       # Operator CLI entrypoints (bin/g1010-ctl)
++├── build/                     # Out-of-tree build workspace (gitignored)
++├── doc/                       # Comprehensive documentation & manuals
++│   ├── history/               # Historical logs (ChangeLog, NEWS, README.legacy)
++│   ├── users_guide/           # User manuals and formatting guides
++│   └── developer/             # Developer and internal API documentation
++├── include/                   # Public and internal C headers (gutenprint/)
++├── m4/                        # Consolidated M4 macro definitions
++│   ├── extra/                 # Supplementary build macros (formerly m4extra)
++│   └── local/                 # Local Gutenprint extensions (formerly m4local)
++├── man/                       # Unix manual pages (cups-genppd, escputil)
++├── packaging/                 # Distribution & platform packaging
++│   ├── macos/                 # macOS installer scripts, packages & dmg tools
++│   ├── docker/                # Container build definitions & Dockerfiles
++│   └── ci/                    # Continuous Integration manifests (.travis.yml)
++├── po/                        # Internationalization & gettext translations
++├── samples/                   # Test patterns & color samples
++├── scripts/                   # Maintainer scripts & global makefile definitions
++├── src/                       # Core driver implementation
++│   ├── cups/                  # CUPS filters, backends & rastertogutenprint
++│   ├── main/                  # Core Gutenprint library & dither engine
++│   ├── xml/                   # Printer XML definitions (canon.xml G1010)
++│   └── tools/matgen/          # Matrix generation scripts (formerly Matgen)
++├── test/                      # Regression testing suite & validation patterns
++├── Support/                   # ProjectOps v2 Engineering Governance
++│   ├── architecture/          # Vector SVG diagrams & Architecture Records
++│   ├── documentation/         # User guides & administrative playbooks
++│   ├── plans/                 # Delivery milestones (PLN001, PLN002)
++│   ├── context/               # Autonomous context & state fingerprints
++│   └── rules.md               # Visual rules & project invariants
++├── project-system.yaml        # ProjectOps v2 manifest (theme: macos)
++├── configure.ac               # Top-level GNU Autoconf orchestrator (foreign mode)
++├── Makefile.am                # Top-level GNU Automake build definition
++├── COPYING                    # GNU General Public License v2
++└── README.md                  # Root documentation landing page
++```
++
++---
++
++## 🛡️ Governance, Architecture & Documentation Links
++
++This project is governed under **ProjectOps v2**:
++
++- **Governance Master Index**: [`Support/support-master.md`](./Support/support-master.md)
++- **Project Rules & macOS Theme**: [`Support/rules.md`](./Support/rules.md)
++- **System Architecture Record**: [`Support/architecture/ARC_20260909_A`](./Support/architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md)
++- **Operator & Admin Guide**: [`Support/documentation/DOC001`](./Support/documentation/DOC001-canon-g1010-macos-airprint-guide.md)
++- **Day One Delivery Plan**: [`Support/plans/01-core/PLN001`](./Support/plans/01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md)
++- **Root Restructuring Plan**: [`Support/plans/02-architecture/PLN002`](./Support/plans/02-architecture/PLN002-root-level-files-restructuring-and-clean-layout-plan.md)
++- **Changelog**: [`Support/changelog.md`](./Support/changelog.md)
++
++---
++
++## 🔄 Git Synchronization & Contributing
++
++To sync and contribute changes to GitHub:
+ 
+-For development runbooks, architectural decision records, and roadmaps, see:
+-- [ProjectOps Governance Master](./Support/support-master.md)
+-- [Rules & Guidelines](./Support/rules.md)
+-- [Plans & Milestones](./Support/plans/plans-master.md)
++1. **GitHub Fork**: Fork [`echiu64/gutenprint`](https://github.com/echiu64/gutenprint) to your authenticated GitHub account (`nschabra/gutenprint`).
++2. **Push Feature Branch**:
++   ```bash
++   git push -u fork feature/canon-g1010-macos-support
++   ```
++3. **Open Pull Request**: Navigate to GitHub and submit a PR from `nschabra/gutenprint:feature/canon-g1010-macos-support` to `echiu64/gutenprint:master`.
+diff --git a/Support/documentation/DOC001-canon-g1010-macos-airprint-guide.md b/Support/documentation/DOC001-canon-g1010-macos-airprint-guide.md
+new file mode 100644
+index 00000000..469280ef
+--- /dev/null
++++ b/Support/documentation/DOC001-canon-g1010-macos-airprint-guide.md
+@@ -0,0 +1,97 @@
++<picture>
++  <source media="(prefers-color-scheme: dark)" srcset="./assets/g1010_hero-dark.svg">
++  <img alt="Canon PIXMA G1010 macOS & AirPrint Guide" src="./assets/g1010_hero-light.svg" width="100%">
++</picture>
++
++# DOC001 — Canon PIXMA G1010 macOS & AirPrint Operator Guide
++
++> **Parent:** [`documentation-master.md`](./documentation-master.md) · **Status:** Active · **Date:** 2026-09-09
++> **Related Architecture:** [`ARC_20260909_A`](../architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md)
++> **Related Plan:** [`PLN001`](../plans/01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md) · [`PLN002`](../plans/02-architecture/PLN002-root-level-files-restructuring-and-clean-layout-plan.md)
++> **Owner:** nschabra
++
++---
++
++## 1. Overview & Capability Matrix
++
++This guide provides technical instructions for configuring, managing, and troubleshooting the **Canon PIXMA G1010** ink-tank printer under Gutenprint 5.3.5 on macOS Sequoia, Sonoma, and Ventura, with network AirPrint capabilities for Apple iOS and iPadOS devices.
++
++| Capability | Canon OEM Driver | Gutenprint 5.3.5 Enhanced | Benefit |
++| :--- | :--- | :--- | :--- |
++| **macOS Native Architecture** | Legacy Rosetta x86_64 | Native Apple Silicon (ARM64) & x86_64 | Zero translation overhead, instant spooling |
++| **macOS Print Dialog Presets** | Generic Default only | Color, Black & White, Photo on Photo Paper | 1-click toggling directly in Cocoa print sheets |
++| **Two-Sided (Duplex)** | Hardware duplex (fails) | Manual / Software Long-Edge Duplex | Prevents paper jam and hardware errors |
++| **Living Room AirPrint** | Not Supported without PC software | Native mDNS / DNS-SD IPP Everywhere (`ippeveprinter`) | Direct printing from iPhone, iPad & Mac |
++| **Ink Telemetry** | Proprietary GUI only | Visual ANSI Meters & Web UI (`https://127.0.0.1:8631/supplies`) | Terminal automation and live monitoring |
++| **SNMP Security** | Unauthenticated scans hang | Hardened (`*cupsSNMPSupplies: False`) | Eliminates network timeouts and CUPS freezes |
++
++---
++
++## 2. Console Administration Tool (`bin/g1010-ctl`)
++
++The primary entry point for managing printer state and queue settings is the `./bin/g1010-ctl` console tool.
++
++### 2.1 Live Queue & Ink Status
++```bash
++./bin/g1010-ctl status
++```
++Displays all configured CUPS queues (`Canon_G1010` and `Canon_G1010_2`), device URIs, current color modes, duplex settings, and visual ANSI percentage meters for the GI-790 ink tanks.
++
++### 2.2 Mode Switching
++```bash
++# Switch active default to vibrant full color
++./bin/g1010-ctl set-mode color
++
++# Switch active default to high-contrast monochrome
++./bin/g1010-ctl set-mode bw
++```
++
++### 2.3 Software Duplex Toggle
++```bash
++# Enable manual double-sided printing
++./bin/g1010-ctl set-duplex on
++
++# Disable double-sided printing
++./bin/g1010-ctl set-duplex off
++```
++
++### 2.4 Interactive Terminal Menu
++```bash
++./bin/g1010-ctl menu
++```
++
++### 2.5 Calibration Test Prints
++```bash
++# Color test pattern
++./bin/g1010-ctl test-print --color
++
++# Monochrome test pattern
++./bin/g1010-ctl test-print --bw
++```
++
++---
++
++## 3. macOS Native Print Panel Presets
++
++The driver embeds native Apple PPD extensions:
++- `*APPrinterPreset Color/Color: "*ColorModel RGB *StpColorPrecision Accurate *Quality Standard"`
++- `*APPrinterPreset BlackAndWhite/Black and White: "*ColorModel Gray *Quality Standard"`
++- `*APPrinterPreset Photo/Photo on Photo Paper: "*ColorModel RGB *Quality Best *MediaType GlossyPhoto"`
++
++In macOS apps (Safari, Preview, Pages, Word), users can select presets from the **Presets** dropdown to switch between Color and Black & White.
++
++---
++
++## 4. Network AirPrint Architecture
++
++Network AirPrint is handled via a dedicated LaunchAgent:
++- **Service**: `com.local.ippeveprinter`
++- **Port**: `8631`
++- **DNS-SD Registration**: `_ipps._tcp`, `_print`, `_universal`, `_color`
++- **Wrapper**: `/Users/m1/PrintServer/print_wrapper.sh` forwards client options (`$5`) to CUPS `lp` with `-o ColorModel=RGB` and `-o Duplex=DuplexNoTumble`.
++
++---
++
++## 5. Footer Navigation
++
++Parent: [`documentation-master.md`](./documentation-master.md) · Architecture: [`ARC_20260909_A`](../architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md)
+diff --git a/Support/documentation/assets/g1010_hero-dark.svg b/Support/documentation/assets/g1010_hero-dark.svg
+new file mode 100644
+index 00000000..fd01378d
+--- /dev/null
++++ b/Support/documentation/assets/g1010_hero-dark.svg
+@@ -0,0 +1,163 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="100%" height="100%">
++  <defs>
++    <linearGradient id="bgDark" x1="0%" y1="0%" x2="100%" y2="100%">
++      <stop offset="0%" stop-color="#0e1117" />
++      <stop offset="50%" stop-color="#161b22" />
++      <stop offset="100%" stop-color="#0d1117" />
++    </linearGradient>
++    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#00D2FF" />
++      <stop offset="100%" stop-color="#0066CC" />
++    </linearGradient>
++    <linearGradient id="magGrad" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#FF3B81" />
++      <stop offset="100%" stop-color="#B8005A" />
++    </linearGradient>
++    <linearGradient id="yelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#FFDF00" />
++      <stop offset="100%" stop-color="#D48800" />
++    </linearGradient>
++    <linearGradient id="blkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#484f58" />
++      <stop offset="100%" stop-color="#21262d" />
++    </linearGradient>
++    <linearGradient id="appleBlue" x1="0%" y1="0%" x2="100%" y2="0%">
++      <stop offset="0%" stop-color="#2997FF" />
++      <stop offset="100%" stop-color="#0071E3" />
++    </linearGradient>
++    <linearGradient id="accentGlow" x1="0%" y1="0%" x2="100%" y2="100%">
++      <stop offset="0%" stop-color="#30D158" stop-opacity="0.8" />
++      <stop offset="100%" stop-color="#0A84FF" stop-opacity="0.2" />
++    </linearGradient>
++    <filter id="shadowDark" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
++      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#000000" flood-opacity="0.6"/>
++    </filter>
++    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
++      <feGaussianBlur stdDeviation="6" result="blur" />
++      <feComposite in="SourceGraphic" in2="blur" operator="over" />
++    </filter>
++  </defs>
++
++  <!-- macOS Window Frame -->
++  <g filter="url(#shadowDark)">
++    <rect x="16" y="14" width="928" height="308" rx="16" fill="url(#bgDark)" stroke="#30363d" stroke-width="1.5"/>
++    <!-- Titlebar -->
++    <path d="M 16 30 Q 16 14 32 14 L 928 14 Q 944 14 944 30 L 944 54 L 16 54 Z" fill="#1c2128" />
++    <line x1="16" y1="54" x2="944" y2="54" stroke="#30363d" stroke-width="1" />
++  </g>
++
++  <!-- Window Traffic Lights -->
++  <circle cx="42" cy="34" r="6.5" fill="#FF5F56" stroke="#E0443E" stroke-width="0.5"/>
++  <circle cx="62" cy="34" r="6.5" fill="#FFBD2E" stroke="#DEA123" stroke-width="0.5"/>
++  <circle cx="82" cy="34" r="6.5" fill="#27C93F" stroke="#1AAB29" stroke-width="0.5"/>
++
++  <text x="480" y="38" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif" font-size="12.5" font-weight="500" text-anchor="middle">
++    gutenprint-5.3.5 — Canon PIXMA G1010 &amp; macOS AirPrint Hub
++  </text>
++
++  <!-- Left Content Column -->
++  <g transform="translate(48, 80)">
++    <!-- Category Pill -->
++    <rect x="0" y="0" width="220" height="24" rx="12" fill="#0c2d6b" stroke="#1f6feb" stroke-width="1" />
++    <circle cx="12" cy="12" r="4" fill="#58a6ff" />
++    <text x="24" y="16" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" letter-spacing="0.8">
++      MACOS NATIVE CUPS DRIVER
++    </text>
++
++    <!-- Main Title -->
++    <text x="0" y="58" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5">
++      Gutenprint 5.3.5
++    </text>
++    <text x="235" y="58" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5">
++      G1010 Edition
++    </text>
++
++    <!-- Subtitle -->
++    <text x="0" y="86" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13.5" font-weight="400">
++      Enterprise-grade driver integration, full color gamut rasterization, and
++    </text>
++    <text x="0" y="106" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13.5" font-weight="400">
++      native Living Room AirPrint advertising for Apple iOS, iPadOS &amp; macOS.
++    </text>
++
++    <!-- Badges Row -->
++    <g transform="translate(0, 134)">
++      <!-- Badge 1: Architecture -->
++      <rect x="0" y="0" width="108" height="26" rx="6" fill="#21262d" stroke="#30363d" stroke-width="1"/>
++      <text x="54" y="17" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">Apple Silicon</text>
++
++      <!-- Badge 2: AirPrint -->
++      <rect x="116" y="0" width="100" height="26" rx="6" fill="#13233a" stroke="#1f6feb" stroke-width="1"/>
++      <text x="166" y="17" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">AirPrint 2.0</text>
++
++      <!-- Badge 3: DPI -->
++      <rect x="224" y="0" width="112" height="26" rx="6" fill="#1c2d20" stroke="#238636" stroke-width="1"/>
++      <text x="280" y="17" fill="#3fb950" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">4800×1200 DPI</text>
++
++      <!-- Badge 4: Governance -->
++      <rect x="344" y="0" width="118" height="26" rx="6" fill="#2b1a38" stroke="#8957e5" stroke-width="1"/>
++      <text x="403" y="17" fill="#d2a8ff" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">ProjectOps v2</text>
++    </g>
++
++    <!-- Command Prompt Box -->
++    <g transform="translate(0, 178)">
++      <rect x="0" y="0" width="462" height="34" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1"/>
++      <text x="14" y="22" fill="#58a6ff" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="12" font-weight="600">$</text>
++      <text x="30" y="22" fill="#e6edf3" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="12">./bin/g1010-ctl status</text>
++      <text x="210" y="22" fill="#7ee787" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="11"># Live ANSI Ink Gauges</text>
++    </g>
++  </g>
++
++  <!-- Right Visual Column: Ink Tank Meters & AirPrint Waves -->
++  <g transform="translate(560, 80)">
++    <!-- Container Card -->
++    <rect x="0" y="0" width="340" height="212" rx="12" fill="#161b22" stroke="#30363d" stroke-width="1"/>
++
++    <!-- Header inside card -->
++    <text x="20" y="28" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13" font-weight="600">
++      GI-790 Ink Tank Telemetry
++    </text>
++    <circle cx="316" cy="24" r="4.5" fill="#3fb950" />
++    <circle cx="316" cy="24" r="8" fill="none" stroke="#3fb950" stroke-width="1.2" opacity="0.6"/>
++
++    <!-- Ink Gauges -->
++    <!-- Black Tank (75%) -->
++    <g transform="translate(20, 48)">
++      <text x="0" y="14" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Black (Pigment)</text>
++      <text x="250" y="14" fill="#8b949e" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">75%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#21262d"/>
++      <rect x="0" y="22" width="188" height="8" rx="4" fill="url(#blkGrad)" stroke="#6e7681" stroke-width="0.5"/>
++    </g>
++
++    <!-- Cyan Tank (50%) -->
++    <g transform="translate(20, 84)">
++      <text x="0" y="14" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Cyan (Dye)</text>
++      <text x="250" y="14" fill="#79c0ff" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">50%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#21262d"/>
++      <rect x="0" y="22" width="125" height="8" rx="4" fill="url(#cyanGrad)"/>
++    </g>
++
++    <!-- Magenta Tank (33%) -->
++    <g transform="translate(20, 120)">
++      <text x="0" y="14" fill="#ff7b72" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Magenta (Dye)</text>
++      <text x="250" y="14" fill="#ff7b72" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">33%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#21262d"/>
++      <rect x="0" y="22" width="82" height="8" rx="4" fill="url(#magGrad)"/>
++    </g>
++
++    <!-- Yellow Tank (67%) -->
++    <g transform="translate(20, 156)">
++      <text x="0" y="14" fill="#d29922" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Yellow (Dye)</text>
++      <text x="250" y="14" fill="#d29922" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">67%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#21262d"/>
++      <rect x="0" y="22" width="167" height="8" rx="4" fill="url(#yelGrad)"/>
++    </g>
++
++    <!-- Wireless AirPrint Indicator Icon -->
++    <g transform="translate(286, 110)">
++      <path d="M 0 50 A 28 28 0 0 1 28 22" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
++      <path d="M 0 50 A 18 18 0 0 1 18 32" fill="none" stroke="#3fb950" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
++      <circle cx="0" cy="50" r="4" fill="#3fb950"/>
++    </g>
++  </g>
++</svg>
+diff --git a/Support/documentation/assets/g1010_hero-light.svg b/Support/documentation/assets/g1010_hero-light.svg
+new file mode 100644
+index 00000000..adcb2d60
+--- /dev/null
++++ b/Support/documentation/assets/g1010_hero-light.svg
+@@ -0,0 +1,151 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="100%" height="100%">
++  <defs>
++    <linearGradient id="bgLight" x1="0%" y1="0%" x2="100%" y2="100%">
++      <stop offset="0%" stop-color="#ffffff" />
++      <stop offset="50%" stop-color="#f8fafc" />
++      <stop offset="100%" stop-color="#f1f5f9" />
++    </linearGradient>
++    <linearGradient id="cyanGradL" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#0ea5e9" />
++      <stop offset="100%" stop-color="#0284c7" />
++    </linearGradient>
++    <linearGradient id="magGradL" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#f43f5e" />
++      <stop offset="100%" stop-color="#e11d48" />
++    </linearGradient>
++    <linearGradient id="yelGradL" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#eab308" />
++      <stop offset="100%" stop-color="#ca8a04" />
++    </linearGradient>
++    <linearGradient id="blkGradL" x1="0%" y1="0%" x2="0%" y2="100%">
++      <stop offset="0%" stop-color="#334155" />
++      <stop offset="100%" stop-color="#0f172a" />
++    </linearGradient>
++    <filter id="shadowLight" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
++      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#64748b" flood-opacity="0.18"/>
++    </filter>
++  </defs>
++
++  <!-- macOS Window Frame -->
++  <g filter="url(#shadowLight)">
++    <rect x="16" y="14" width="928" height="308" rx="16" fill="url(#bgLight)" stroke="#cbd5e1" stroke-width="1.5"/>
++    <!-- Titlebar -->
++    <path d="M 16 30 Q 16 14 32 14 L 928 14 Q 944 14 944 30 L 944 54 L 16 54 Z" fill="#f8fafc" />
++    <line x1="16" y1="54" x2="944" y2="54" stroke="#cbd5e1" stroke-width="1" />
++  </g>
++
++  <!-- Window Traffic Lights -->
++  <circle cx="42" cy="34" r="6.5" fill="#FF5F56" stroke="#E0443E" stroke-width="0.5"/>
++  <circle cx="62" cy="34" r="6.5" fill="#FFBD2E" stroke="#DEA123" stroke-width="0.5"/>
++  <circle cx="82" cy="34" r="6.5" fill="#27C93F" stroke="#1AAB29" stroke-width="0.5"/>
++
++  <text x="480" y="38" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif" font-size="12.5" font-weight="500" text-anchor="middle">
++    gutenprint-5.3.5 — Canon PIXMA G1010 &amp; macOS AirPrint Hub
++  </text>
++
++  <!-- Left Content Column -->
++  <g transform="translate(48, 80)">
++    <!-- Category Pill -->
++    <rect x="0" y="0" width="220" height="24" rx="12" fill="#eff6ff" stroke="#93c5fd" stroke-width="1" />
++    <circle cx="12" cy="12" r="4" fill="#0284c7" />
++    <text x="24" y="16" fill="#0369a1" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" letter-spacing="0.8">
++      MACOS NATIVE CUPS DRIVER
++    </text>
++
++    <!-- Main Title -->
++    <text x="0" y="58" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5">
++      Gutenprint 5.3.5
++    </text>
++    <text x="235" y="58" fill="#0284c7" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif" font-size="28" font-weight="700" letter-spacing="-0.5">
++      G1010 Edition
++    </text>
++
++    <!-- Subtitle -->
++    <text x="0" y="86" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13.5" font-weight="400">
++      Enterprise-grade driver integration, full color gamut rasterization, and
++    </text>
++    <text x="0" y="106" fill="#475569" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13.5" font-weight="400">
++      native Living Room AirPrint advertising for Apple iOS, iPadOS &amp; macOS.
++    </text>
++
++    <!-- Badges Row -->
++    <g transform="translate(0, 134)">
++      <!-- Badge 1: Architecture -->
++      <rect x="0" y="0" width="108" height="26" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
++      <text x="54" y="17" fill="#334155" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">Apple Silicon</text>
++
++      <!-- Badge 2: AirPrint -->
++      <rect x="116" y="0" width="100" height="26" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
++      <text x="166" y="17" fill="#0284c7" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">AirPrint 2.0</text>
++
++      <!-- Badge 3: DPI -->
++      <rect x="224" y="0" width="112" height="26" rx="6" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
++      <text x="280" y="17" fill="#16a34a" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">4800×1200 DPI</text>
++
++      <!-- Badge 4: Governance -->
++      <rect x="344" y="0" width="118" height="26" rx="6" fill="#faf5ff" stroke="#e9d5ff" stroke-width="1"/>
++      <text x="403" y="17" fill="#9333ea" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="600" text-anchor="middle">ProjectOps v2</text>
++    </g>
++
++    <!-- Command Prompt Box -->
++    <g transform="translate(0, 178)">
++      <rect x="0" y="0" width="462" height="34" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
++      <text x="14" y="22" fill="#0284c7" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="12" font-weight="600">$</text>
++      <text x="30" y="22" fill="#0f172a" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="12">./bin/g1010-ctl status</text>
++      <text x="210" y="22" fill="#16a34a" font-family="'SF Mono', Menlo, Monaco, monospace" font-size="11"># Live ANSI Ink Gauges</text>
++    </g>
++  </g>
++
++  <!-- Right Visual Column: Ink Tank Meters & AirPrint Waves -->
++  <g transform="translate(560, 80)">
++    <!-- Container Card -->
++    <rect x="0" y="0" width="340" height="212" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
++
++    <!-- Header inside card -->
++    <text x="20" y="28" fill="#0f172a" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="13" font-weight="600">
++      GI-790 Ink Tank Telemetry
++    </text>
++    <circle cx="316" cy="24" r="4.5" fill="#16a34a" />
++    <circle cx="316" cy="24" r="8" fill="none" stroke="#16a34a" stroke-width="1.2" opacity="0.6"/>
++
++    <!-- Ink Gauges -->
++    <!-- Black Tank (75%) -->
++    <g transform="translate(20, 48)">
++      <text x="0" y="14" fill="#334155" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Black (Pigment)</text>
++      <text x="250" y="14" fill="#64748b" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">75%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
++      <rect x="0" y="22" width="188" height="8" rx="4" fill="url(#blkGradL)"/>
++    </g>
++
++    <!-- Cyan Tank (50%) -->
++    <g transform="translate(20, 84)">
++      <text x="0" y="14" fill="#0284c7" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Cyan (Dye)</text>
++      <text x="250" y="14" fill="#0284c7" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">50%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
++      <rect x="0" y="22" width="125" height="8" rx="4" fill="url(#cyanGradL)"/>
++    </g>
++
++    <!-- Magenta Tank (33%) -->
++    <g transform="translate(20, 120)">
++      <text x="0" y="14" fill="#e11d48" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Magenta (Dye)</text>
++      <text x="250" y="14" fill="#e11d48" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">33%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
++      <rect x="0" y="22" width="82" height="8" rx="4" fill="url(#magGradL)"/>
++    </g>
++
++    <!-- Yellow Tank (67%) -->
++    <g transform="translate(20, 156)">
++      <text x="0" y="14" fill="#ca8a04" font-family="-apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif" font-size="11" font-weight="500">Yellow (Dye)</text>
++      <text x="250" y="14" fill="#ca8a04" font-family="'SF Mono', monospace" font-size="11" text-anchor="end">67%</text>
++      <rect x="0" y="22" width="250" height="8" rx="4" fill="#f1f5f9"/>
++      <rect x="0" y="22" width="167" height="8" rx="4" fill="url(#yelGradL)"/>
++    </g>
++
++    <!-- Wireless AirPrint Indicator Icon -->
++    <g transform="translate(286, 110)">
++      <path d="M 0 50 A 28 28 0 0 1 28 22" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" opacity="0.3"/>
++      <path d="M 0 50 A 18 18 0 0 1 18 32" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" opacity="0.6"/>
++      <circle cx="0" cy="50" r="4" fill="#16a34a"/>
++    </g>
++  </g>
++</svg>
+diff --git a/Support/documentation/documentation-master.md b/Support/documentation/documentation-master.md
+index 315c1165..1f66db35 100644
+--- a/Support/documentation/documentation-master.md
++++ b/Support/documentation/documentation-master.md
+@@ -10,6 +10,7 @@ Documentation quality, standards, and physical codebase coverage.
+ 
+ | S.No. | Record | Description | Status |
+ | ---: | --- | --- | --- |
++| 1 | [`DOC001`](./DOC001-canon-g1010-macos-airprint-guide.md) | Canon PIXMA G1010 macOS & AirPrint Operator Guide | Active |
+ 
+ ## Footer Navigation
+ 
+-- 
+2.50.1 (Apple Git-155)
+

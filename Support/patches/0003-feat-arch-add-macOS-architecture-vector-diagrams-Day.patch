@@ -1,0 +1,464 @@
+From f67cbf34b2fff4f8100cc1536a9185945db39f52 Mon Sep 17 00:00:00 2001
+From: nschabra <nschabra.work@gmail.com>
+Date: Wed, 9 Sep 2026 06:10:23 +0530
+Subject: [PATCH 3/5] feat(arch): add macOS architecture vector diagrams, Day
+ One plan, and project-system manifest
+
+---
+ ...canon_g1010_macos_airprint_architecture.md | 65 ++++++++++++
+ Support/architecture/architecture-master.md   |  1 +
+ .../assets/g1010_architecture-dark.svg        | 99 +++++++++++++++++++
+ .../assets/g1010_architecture-light.svg       | 99 +++++++++++++++++++
+ Support/context/.pdm-context-source.json      |  2 +-
+ Support/context/current-context.md            |  2 +-
+ ...0-support-and-airprint-integration-plan.md | 37 +++++++
+ Support/plans/plans-master.md                 |  3 +-
+ Support/rules.md                              |  2 +-
+ bin/g1010-ctl                                 |  1 +
+ project-system.yaml                           | 34 +++++++
+ 11 files changed, 341 insertions(+), 4 deletions(-)
+ create mode 100644 Support/architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md
+ create mode 100644 Support/architecture/assets/g1010_architecture-dark.svg
+ create mode 100644 Support/architecture/assets/g1010_architecture-light.svg
+ create mode 100644 Support/plans/01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md
+ create mode 120000 bin/g1010-ctl
+ create mode 100644 project-system.yaml
+
+diff --git a/Support/architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md b/Support/architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md
+new file mode 100644
+index 00000000..171c4d10
+--- /dev/null
++++ b/Support/architecture/ARC_20260909_A_canon_g1010_macos_airprint_architecture.md
+@@ -0,0 +1,65 @@
++<picture>
++  <source media="(prefers-color-scheme: dark)" srcset="./assets/g1010_architecture-dark.svg">
++  <img alt="Canon PIXMA G1010 Architecture" src="./assets/g1010_architecture-light.svg" width="100%">
++</picture>
++
++# ARC_20260909_A — Canon PIXMA G1010 macOS & AirPrint Architecture
++
++> **Parent:** [`architecture-master.md`](./architecture-master.md) · **Status:** Active · **Date:** 2026-09-09
++> **Related Plan:** [`G1010`](../plans/01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md)
++> **Owner:** nschabra
++
++---
++
++## 1. Executive Summary
++
++This architecture document defines the end-to-end printing and management pipeline for the **Canon PIXMA G1010** ink-tank printer on modern macOS and network AirPrint environments.
++
++---
++
++## 2. Component Taxonomy
++
++### 2.1 Client Ingress Points
++1. **macOS Cocoa Applications** (Safari, Preview, Pages):
++   - Communicates with CUPS via PostScript/PDF rasterization.
++   - Leverages Apple PPD extensions: `*APPrinterPreset`, `*APSupportsCustomColorMatching`, and ColorSync ICC profiles.
++2. **iOS & Network AirPrint Clients** (iPhone, iPad):
++   - Discovered over mDNS/DNS-SD (`_ipps._tcp`, `_universal`, `_color`).
++   - Streams PDF / JPEG / URF raster jobs directly to port 8631.
++3. **Operator CLI Console (`g1010-ctl` / `bin/g1010-ctl`)**:
++   - Python 3 interactive console providing visual ANSI ink level meters, one-command PPD deployment, and calibration test prints.
++
++### 2.2 Routing & Middle Tier
++1. **CUPS Scheduler (`org.cups.cupsd`)**:
++   - Manages local queues: `Canon_G1010` (Direct USB) and `Canon_G1010_2` (Network IPPS).
++   - Enforces PPD configuration: `ColorDevice: True`, `DefaultColorSpace: RGB`, `Duplex: PickOne`.
++2. **Living Room AirPrint Daemon (`ippeveprinter`)**:
++   - Listens on port 8631, advertising 9 ppm black, 5 ppm color (`-s 9,5`), 2-sided support (`-2`), and color DNS-SD (`-r _print,_universal,_color`).
++   - Serves authenticated/isolated web status, media, and ink level gauges at `https://localhost:8631/supplies`.
++3. **Print Options Router (`print_wrapper.sh`)**:
++   - Intercepts incoming IPP jobs and guarantees that client print options (e.g. `ColorModel=RGB`, `MediaType=Plain`) are preserved and forwarded to the CUPS `lp` invocation.
++
++### 2.3 Driver Core & Hardware
++1. **Gutenprint 5.3.5 Raster Filter (`rastertogutenprint.5.3`)**:
++   - Processes raster streams using the native `bjc-PIXMA-G1010` driver definition (model `17001000`).
++   - Renders 4-channel CMYK ink curves optimized for Canon FINE print heads up to 4800x1200 dpi.
++2. **Canon PIXMA G1010 Hardware**:
++   - High-yield ink-tank hardware connected via USB 2.0.
++   - Operates in manual duplex mode with rear-tray feeding.
++
++---
++
++## 3. Cybersecurity & Reliability Invariants
++
++1. **SNMP Probe Suppression**:
++   - `*cupsSNMPSupplies: False` is enforced across PPDs to eliminate network hangs and unauthenticated broadcast probing.
++2. **Web Interface Isolation**:
++   - `ippeveprinter` web forms serve `X-Frame-Options: DENY` and `Content-Security-Policy: frame-ancestors 'none'` to block clickjacking and cross-origin embedding.
++3. **Strict Parameter Validation**:
++   - `g1010-ctl` sanitizes all terminal arguments before dispatching subprocess commands.
++
++---
++
++## Footer Navigation
++
++Parent: [`architecture-master.md`](./architecture-master.md) · Plans: [`../plans/plans-master.md`](../plans/plans-master.md)
+diff --git a/Support/architecture/architecture-master.md b/Support/architecture/architecture-master.md
+index 7bbdfacd..229bdaf1 100644
+--- a/Support/architecture/architecture-master.md
++++ b/Support/architecture/architecture-master.md
+@@ -10,6 +10,7 @@ System boundary, component interactions, and current/target state.
+ 
+ | S.No. | Record | Description | Status |
+ | ---: | --- | --- | --- |
++| 1 | [`ARC_20260909_A`](./ARC_20260909_A_canon_g1010_macos_airprint_architecture.md) | Canon PIXMA G1010 macOS & AirPrint Architecture | Active |
+ 
+ ## Footer Navigation
+ 
+diff --git a/Support/architecture/assets/g1010_architecture-dark.svg b/Support/architecture/assets/g1010_architecture-dark.svg
+new file mode 100644
+index 00000000..72eb5788
+--- /dev/null
++++ b/Support/architecture/assets/g1010_architecture-dark.svg
+@@ -0,0 +1,99 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="100%" height="100%">
++  <defs>
++    <style>
++      .window-bg { fill: #1e1e1e; stroke: #383838; stroke-width: 1.5; rx: 16; }
++      .titlebar { fill: #262626; }
++      .card { fill: #282828; stroke: #3f3f3f; stroke-width: 1.5; rx: 12; }
++      .card-blue { fill: #1c2738; stroke: #0a84ff; stroke-width: 1.5; rx: 12; }
++      .card-green { fill: #192a20; stroke: #30d158; stroke-width: 1.5; rx: 12; }
++      .card-purple { fill: #271f33; stroke: #bf5af2; stroke-width: 1.5; rx: 12; }
++      .card-orange { fill: #2f2518; stroke: #ff9f0a; stroke-width: 1.5; rx: 12; }
++      .txt-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; font-size: 15px; font-weight: 600; fill: #ffffff; }
++      .txt-body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 12px; fill: #98989d; }
++      .badge-blue { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #0a84ff; }
++      .badge-green { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #30d158; }
++      .badge-purple { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #bf5af2; }
++      .badge-orange { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #ff9f0a; }
++      .conn-line { stroke: #0a84ff; stroke-width: 2; fill: none; stroke-dasharray: 4,4; }
++      .arrow { fill: #0a84ff; }
++      .win-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 13px; font-weight: 500; fill: #e1e1e6; }
++    </style>
++    <marker id="arr" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
++      <path d="M0,0 L0,6 L9,3 z" class="arrow" />
++    </marker>
++  </defs>
++
++  <!-- macOS Window Frame -->
++  <rect width="1000" height="640" class="window-bg" />
++  
++  <!-- macOS Titlebar with Traffic Lights -->
++  <path d="M 0 16 C 0 7.16 7.16 0 16 0 L 984 0 C 992.84 0 1000 7.16 1000 16 L 1000 44 L 0 44 Z" class="titlebar"/>
++  <circle cx="24" cy="22" r="6.5" fill="#ff5f56" stroke="#e0443e" stroke-width="0.5"/>
++  <circle cx="44" cy="22" r="6.5" fill="#ffbd2e" stroke="#dea123" stroke-width="0.5"/>
++  <circle cx="64" cy="22" r="6.5" fill="#27c93f" stroke="#1aab29" stroke-width="0.5"/>
++  <text x="500" y="27" text-anchor="middle" class="win-title">Canon PIXMA G1010 — macOS AirPrint &amp; Gutenprint 5.3.5 Architecture</text>
++
++  <!-- Layer 1: Client Ingress -->
++  <g transform="translate(40, 70)">
++    <rect width="280" height="95" class="card-blue"/>
++    <text x="18" y="28" class="txt-title">macOS Client</text>
++    <text x="18" y="50" class="txt-body">Cocoa Print Dialog / ColorSync ICC</text>
++    <text x="18" y="72" class="badge-blue">Presets: Color / B&amp;W / Photo</text>
++  </g>
++
++  <g transform="translate(360, 70)">
++    <rect width="280" height="95" class="card-purple"/>
++    <text x="18" y="28" class="txt-title">iOS AirPrint (iPhone / iPad)</text>
++    <text x="18" y="50" class="txt-body">DNS-SD Service: _color, _universal</text>
++    <text x="18" y="72" class="badge-purple">IPP Everywhere · Port 8631</text>
++  </g>
++
++  <g transform="translate(680, 70)">
++    <rect width="280" height="95" class="card-green"/>
++    <text x="18" y="28" class="txt-title">Console Tool (g1010-ctl)</text>
++    <text x="18" y="50" class="txt-body">Live ANSI Meters &amp; Mode Switcher</text>
++    <text x="18" y="72" class="badge-green">One-Command CUPS PPD Setup</text>
++  </g>
++
++  <!-- Layer 2: Routing & Middleware -->
++  <g transform="translate(40, 215)">
++    <rect width="440" height="135" class="card"/>
++    <text x="22" y="30" class="txt-title">macOS CUPS Print Subsystem</text>
++    <text x="22" y="54" class="txt-body">Queue 1: Canon_G1010 (USB Direct)</text>
++    <text x="22" y="74" class="txt-body">Queue 2: Canon_G1010_2 (Living Room Network)</text>
++    <text x="22" y="98" class="badge-blue">PPD: ColorDevice=True, Duplex=PickOne</text>
++    <text x="22" y="118" class="badge-orange">Security: *cupsSNMPSupplies: False</text>
++  </g>
++
++  <g transform="translate(520, 215)">
++    <rect width="440" height="135" class="card-orange"/>
++    <text x="22" y="30" class="txt-title">Living Room AirPrint Server</text>
++    <text x="22" y="54" class="txt-body">Daemon: ippeveprinter -p 8631 -s 9,5 -2</text>
++    <text x="22" y="74" class="txt-body">Router: print_wrapper.sh (Forwards Options)</text>
++    <text x="22" y="98" class="badge-orange">Web Supplies: https://localhost:8631/supplies</text>
++    <text x="22" y="118" class="badge-orange">Protection: CSP Active, X-Frame-Options DENY</text>
++  </g>
++
++  <!-- Layer 3: Driver Core -->
++  <g transform="translate(160, 395)">
++    <rect width="680" height="95" class="card-blue"/>
++    <text x="24" y="30" class="txt-title">Gutenprint 5.3.5 Raster Processing Engine</text>
++    <text x="24" y="54" class="txt-body">Driver: rastertogutenprint.5.3 · Model: bjc-PIXMA-G1010 (ID 17001000)</text>
++    <text x="24" y="76" class="badge-blue">4-Channel CMYK Fine Curves · 4800x1200 dpi Matrix · Borderless Photo Media</text>
++  </g>
++
++  <!-- Layer 4: Hardware -->
++  <g transform="translate(280, 535)">
++    <rect width="440" height="60" class="card-green"/>
++    <text x="24" y="36" class="txt-title" style="fill:#30d158;">Canon PIXMA G1010 Hardware</text>
++    <text x="280" y="36" class="txt-body">USB 2.0 / Ink-Tank Engine</text>
++  </g>
++
++  <!-- Connection Arrows -->
++  <path d="M 180 165 L 180 215" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 500 165 L 500 190 L 740 190 L 740 215" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 820 165 L 820 190 L 340 190 L 340 215" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 740 350 L 740 375 L 420 375 L 420 395" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 260 350 L 260 395" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 500 490 L 500 535" class="conn-line" marker-end="url(#arr)"/>
++</svg>
+diff --git a/Support/architecture/assets/g1010_architecture-light.svg b/Support/architecture/assets/g1010_architecture-light.svg
+new file mode 100644
+index 00000000..9579928f
+--- /dev/null
++++ b/Support/architecture/assets/g1010_architecture-light.svg
+@@ -0,0 +1,99 @@
++<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 640" width="100%" height="100%">
++  <defs>
++    <style>
++      .window-bg { fill: #f5f5f7; stroke: #d2d2d7; stroke-width: 1.5; rx: 16; }
++      .titlebar { fill: #ebebef; }
++      .card { fill: #ffffff; stroke: #d2d2d7; stroke-width: 1.5; rx: 12; }
++      .card-blue { fill: #f0f7ff; stroke: #0071e3; stroke-width: 1.5; rx: 12; }
++      .card-green { fill: #f2fbf4; stroke: #34c759; stroke-width: 1.5; rx: 12; }
++      .card-purple { fill: #fbf5ff; stroke: #af52de; stroke-width: 1.5; rx: 12; }
++      .card-orange { fill: #fffaf0; stroke: #ff9500; stroke-width: 1.5; rx: 12; }
++      .txt-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; font-size: 15px; font-weight: 600; fill: #1d1d1f; }
++      .txt-body { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 12px; fill: #6e6e73; }
++      .badge-blue { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #0071e3; }
++      .badge-green { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #34c759; }
++      .badge-purple { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #af52de; }
++      .badge-orange { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 11px; font-weight: 600; fill: #ff9500; }
++      .conn-line { stroke: #0071e3; stroke-width: 2; fill: none; stroke-dasharray: 4,4; }
++      .arrow { fill: #0071e3; }
++      .win-title { font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif; font-size: 13px; font-weight: 500; fill: #48484a; }
++    </style>
++    <marker id="arr" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto">
++      <path d="M0,0 L0,6 L9,3 z" class="arrow" />
++    </marker>
++  </defs>
++
++  <!-- macOS Window Frame -->
++  <rect width="1000" height="640" class="window-bg" />
++  
++  <!-- macOS Titlebar with Traffic Lights -->
++  <path d="M 0 16 C 0 7.16 7.16 0 16 0 L 984 0 C 992.84 0 1000 7.16 1000 16 L 1000 44 L 0 44 Z" class="titlebar"/>
++  <circle cx="24" cy="22" r="6.5" fill="#ff5f56" stroke="#e0443e" stroke-width="0.5"/>
++  <circle cx="44" cy="22" r="6.5" fill="#ffbd2e" stroke="#dea123" stroke-width="0.5"/>
++  <circle cx="64" cy="22" r="6.5" fill="#27c93f" stroke="#1aab29" stroke-width="0.5"/>
++  <text x="500" y="27" text-anchor="middle" class="win-title">Canon PIXMA G1010 — macOS AirPrint &amp; Gutenprint 5.3.5 Architecture</text>
++
++  <!-- Layer 1: Client Ingress -->
++  <g transform="translate(40, 70)">
++    <rect width="280" height="95" class="card-blue"/>
++    <text x="18" y="28" class="txt-title">macOS Client</text>
++    <text x="18" y="50" class="txt-body">Cocoa Print Dialog / ColorSync ICC</text>
++    <text x="18" y="72" class="badge-blue">Presets: Color / B&amp;W / Photo</text>
++  </g>
++
++  <g transform="translate(360, 70)">
++    <rect width="280" height="95" class="card-purple"/>
++    <text x="18" y="28" class="txt-title">iOS AirPrint (iPhone / iPad)</text>
++    <text x="18" y="50" class="txt-body">DNS-SD Service: _color, _universal</text>
++    <text x="18" y="72" class="badge-purple">IPP Everywhere · Port 8631</text>
++  </g>
++
++  <g transform="translate(680, 70)">
++    <rect width="280" height="95" class="card-green"/>
++    <text x="18" y="28" class="txt-title">Console Tool (g1010-ctl)</text>
++    <text x="18" y="50" class="txt-body">Live ANSI Meters &amp; Mode Switcher</text>
++    <text x="18" y="72" class="badge-green">One-Command CUPS PPD Setup</text>
++  </g>
++
++  <!-- Layer 2: Routing & Middleware -->
++  <g transform="translate(40, 215)">
++    <rect width="440" height="135" class="card"/>
++    <text x="22" y="30" class="txt-title">macOS CUPS Print Subsystem</text>
++    <text x="22" y="54" class="txt-body">Queue 1: Canon_G1010 (USB Direct)</text>
++    <text x="22" y="74" class="txt-body">Queue 2: Canon_G1010_2 (Living Room Network)</text>
++    <text x="22" y="98" class="badge-blue">PPD: ColorDevice=True, Duplex=PickOne</text>
++    <text x="22" y="118" class="badge-orange">Security: *cupsSNMPSupplies: False</text>
++  </g>
++
++  <g transform="translate(520, 215)">
++    <rect width="440" height="135" class="card-orange"/>
++    <text x="22" y="30" class="txt-title">Living Room AirPrint Server</text>
++    <text x="22" y="54" class="txt-body">Daemon: ippeveprinter -p 8631 -s 9,5 -2</text>
++    <text x="22" y="74" class="txt-body">Router: print_wrapper.sh (Forwards Options)</text>
++    <text x="22" y="98" class="badge-orange">Web Supplies: https://localhost:8631/supplies</text>
++    <text x="22" y="118" class="badge-orange">Protection: CSP Active, X-Frame-Options DENY</text>
++  </g>
++
++  <!-- Layer 3: Driver Core -->
++  <g transform="translate(160, 395)">
++    <rect width="680" height="95" class="card-blue"/>
++    <text x="24" y="30" class="txt-title">Gutenprint 5.3.5 Raster Processing Engine</text>
++    <text x="24" y="54" class="txt-body">Driver: rastertogutenprint.5.3 · Model: bjc-PIXMA-G1010 (ID 17001000)</text>
++    <text x="24" y="76" class="badge-blue">4-Channel CMYK Fine Curves · 4800x1200 dpi Matrix · Borderless Photo Media</text>
++  </g>
++
++  <!-- Layer 4: Hardware -->
++  <g transform="translate(280, 535)">
++    <rect width="440" height="60" class="card-green"/>
++    <text x="24" y="36" class="txt-title" style="fill:#34c759;">Canon PIXMA G1010 Hardware</text>
++    <text x="280" y="36" class="txt-body">USB 2.0 / Ink-Tank Engine</text>
++  </g>
++
++  <!-- Connection Arrows -->
++  <path d="M 180 165 L 180 215" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 500 165 L 500 190 L 740 190 L 740 215" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 820 165 L 820 190 L 340 190 L 340 215" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 740 350 L 740 375 L 420 375 L 420 395" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 260 350 L 260 395" class="conn-line" marker-end="url(#arr)"/>
++  <path d="M 500 490 L 500 535" class="conn-line" marker-end="url(#arr)"/>
++</svg>
+diff --git a/Support/context/.pdm-context-source.json b/Support/context/.pdm-context-source.json
+index 7df4e7a6..1317222e 100644
+--- a/Support/context/.pdm-context-source.json
++++ b/Support/context/.pdm-context-source.json
+@@ -2,5 +2,5 @@
+   "concept-design/concept-design-master.md": "583b64c996dcf073e7dd12f7c4fa80f1328f227811b2e9210893e8863e7dce59",
+   "decisions/decisions-master.md": "76979f1452524228e627cf368347a9342951ff24fee1449d22e9b47d5c7110c8",
+   "gaps-issues/gaps-issues-master.md": "848a475ef98691c00beea078345300f9ea2c5edde369ecb7af6db475568af5be",
+-  "plans/plans-master.md": "8dbc80bd717497fab9b9c61030b69a0029a076e3f5599306ee0efa95e77b630e"
++  "plans/plans-master.md": "c61ab54161f7f64beed4f47792940be331f273a5780013a356d93511b8c0052f"
+ }
+diff --git a/Support/context/current-context.md b/Support/context/current-context.md
+index 6f14f06d..d2f06382 100644
+--- a/Support/context/current-context.md
++++ b/Support/context/current-context.md
+@@ -22,7 +22,7 @@ _Generated by `pdm context refresh` — do not hand-edit between the markers._
+ | Field | Value |
+ | --- | --- |
+ | Skills in catalog | 0 (0 Lexvora · 0 third-party) |
+-| Plan roll-up (TL/PD/IP/CD) | 0 / 0 / 0 / 0 |
++| Plan roll-up (TL/PD/IP/CD) | 7 / 0 / 0 / 7 |
+ | Gap roll-up (TL/PD/IP/CD) | 0 / 0 / 0 / 0 |
+ | Concepts | 0 (0 open) |
+ | Decisions | 0 |
+diff --git a/Support/plans/01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md b/Support/plans/01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md
+new file mode 100644
+index 00000000..2166d95e
+--- /dev/null
++++ b/Support/plans/01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md
+@@ -0,0 +1,37 @@
++# Plan — Canon G1010 Support and AirPrint Integration (`G1010`)
++
++> **Parent:** [`../plans-master.md`](../plans-master.md) · **Code:** `G1010`
++> **Status:** Active · **Owner:** nschabra
++
++## Sources and Traceability
++
++| S.No. | Code | Source record | Plan role | Status |
++| ---: | --- | --- | --- | --- |
++| 1 | `RUL` | [`../../rules.md`](../../rules.md) | Binding constraints and governance | Current |
++
++## Statistics
++
++`TL = PD + IP + CD`. From task markers below.
++
++| S.No. | Plan Scope | TL | PD | IP | CD |
++| ---: | --- | ---: | ---: | ---: | ---: |
++| 1 | `G1010` direct tasks | 7 | 0 | 0 | 7 |
++| 2 | Total | **7** | **0** | **0** | **7** |
++
++## Context
++
++Comprehensive Day One delivery of Canon PIXMA G1010 Gutenprint 5.3.5 drivers, macOS/Haiku build fixes, Apple Presets, Living Room AirPrint options forwarding, and g1010-ctl CLI management.
++
++## 01. Day One Delivery Tasks
++
++- [x] `G1010-01.01` Native Model Integration in `canon.xml` (binds model 17001000 with CMYK profiles)
++- [x] `G1010-01.02` macOS & Haiku POSIX Build Compatibility in `scripts/global.mk` & `genppd.h` (`_DARWIN_C_SOURCE`)
++- [x] `G1010-01.03` Modern Apple Presets (Color, B&W, Photo) & SNMP Supply Security in `genppd.c`
++- [x] `G1010-01.04` Living Room AirPrint (`ippeveprinter`) Color, 2-Sided, and Speed Advertising
++- [x] `G1010-01.05` Client Print Options Forwarding in `print_wrapper.sh`
++- [x] `G1010-01.06` Interactive Console Management Tool `g1010-ctl` with Visual ANSI Ink Meters
++- [x] `G1010-01.07` ProjectOps v2 Repository Governance Scaffolding & Root-Level Cleanup
++
++## Footer Navigation
++
++Parent: [`../plans-master.md`](../plans-master.md) · Plans Master: [`../plans-master.md`](../plans-master.md)
+diff --git a/Support/plans/plans-master.md b/Support/plans/plans-master.md
+index 2fbbae3c..8ab89a60 100644
+--- a/Support/plans/plans-master.md
++++ b/Support/plans/plans-master.md
+@@ -12,7 +12,8 @@ Index all committed delivery plans for `Gutenprint`.
+ 
+ | S.No. | Plan Scope | Code | TL | PD | IP | CD | Status |
+ | ---: | --- | --- | ---: | ---: | ---: | ---: | --- |
+-| 1 | **Total** | — | **0** | **0** | **0** | **0** | Complete |
++| 1 | [`01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md`](./01-core/PLN001-canon-g1010-support-and-airprint-integration-plan.md) | `G1010` | 7 | 0 | 0 | 7 | Active |
++| 2 | Total | — | **7** | **0** | **0** | **7** | Complete |
+ 
+ ## Footer Navigation
+ 
+diff --git a/Support/rules.md b/Support/rules.md
+index 795a43c4..8bc0169d 100644
+--- a/Support/rules.md
++++ b/Support/rules.md
+@@ -6,7 +6,7 @@
+ 
+ 1. Documentation root casing: `Support`
+ 2. Git mode: `Direct Main`
+-3. Theme: `lexvora-company`
++3. Theme: `macos`
+ 4. Every governed Markdown table must contain a left-most sequence column named `S.No.` numbered 1..N.
+ 5. Every Plan task statistics row must strictly balance `TL = PD + IP + CD`.
+ 6. Use `_` as identifier token separator (e.g. `G_01`, `WL_YYYYMMDD_A`).
+diff --git a/bin/g1010-ctl b/bin/g1010-ctl
+new file mode 120000
+index 00000000..793b2fbd
+--- /dev/null
++++ b/bin/g1010-ctl
+@@ -0,0 +1 @@
++../src/cups/g1010-ctl
+\ No newline at end of file
+diff --git a/project-system.yaml b/project-system.yaml
+new file mode 100644
+index 00000000..47f97614
+--- /dev/null
++++ b/project-system.yaml
+@@ -0,0 +1,34 @@
++project:
++  name: "Gutenprint 5.3.5 — Canon PIXMA G1010 & macOS AirPrint"
++  shortcode: gp5
++  theme: macos
++
++repository:
++  folder_naming: hybrid-standard
++  fallback_shortcode: gp5
++
++folders:
++  core:
++    path: src
++    purpose: "Core C printer drivers, raster filter, and printer capability XML definitions"
++  include:
++    path: include
++    purpose: "Public C library header definitions"
++  tools:
++    path: bin
++    purpose: "Operator and developer CLI tools including g1010-ctl"
++  support:
++    path: Support
++    purpose: "ProjectOps v2 repository governance, architecture, ADRs, and plans"
++  build:
++    path: scripts
++    purpose: "Autotools and build orchestration scripts"
++  tests:
++    path: test
++    purpose: "Automated regression and driver validation test suite"
++  documentation:
++    path: doc
++    purpose: "User manuals, release notes, and reference documentation"
++  packaging:
++    path: macosx
++    purpose: "macOS native package and installer scripts"
+-- 
+2.50.1 (Apple Git-155)
+

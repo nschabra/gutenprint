@@ -1,0 +1,110 @@
+From 8b85619b529161584cd87ba4724eb206d6d4f6d2 Mon Sep 17 00:00:00 2001
+From: nschabra <nschabra.work@gmail.com>
+Date: Wed, 9 Sep 2026 05:50:45 +0530
+Subject: [PATCH 1/5] canon: Add Canon PIXMA G1010 support, macOS/Haiku build
+ fixes, and Apple GUI presets
+
+---
+ scripts/global.mk          |  2 +-
+ src/cups/genppd.c          | 36 ++++++++++++++++++++++++++++++++++++
+ src/cups/genppd.h          |  4 ++++
+ src/xml/printers/canon.xml |  1 +
+ 4 files changed, 42 insertions(+), 1 deletion(-)
+
+diff --git a/scripts/global.mk b/scripts/global.mk
+index 792b8b0d..79aae9cd 100644
+--- a/scripts/global.mk
++++ b/scripts/global.mk
+@@ -6,7 +6,7 @@
+ #export STP_MODULE_PATH = $(top_builddir)/src/main/.libs:$(top_builddir)/src/main
+ #export STP_DATA_PATH = $(top_srcdir)/src/xml
+ 
+-AM_CPPFLAGS = -I$(top_srcdir)/include -I$(top_builddir)/include $(LOCAL_CPPFLAGS) $(GNUCFLAGS) -DPACKAGE_LOCALE_DIR=\"$(PACKAGE_LOCALE_DIR)\" -DPACKAGE_DATA_DIR=\"$(PACKAGE_DATA_DIR)\" -DPACKAGE_LIB_DIR=\"$(PACKAGE_LIB_DIR)\" -DPACKAGE_BIN_DIR=\"$(PACKAGE_BIN_DIR)\" -DPKGMODULEDIR=\"$(PKGMODULEDIR)\" -DPKGXMLDATADIR=\"$(PKGXMLDATADIR)\"
++AM_CPPFLAGS = -D_DARWIN_C_SOURCE=1 -I$(top_srcdir)/include -I$(top_builddir)/include $(LOCAL_CPPFLAGS) $(GNUCFLAGS) -DPACKAGE_LOCALE_DIR=\"$(PACKAGE_LOCALE_DIR)\" -DPACKAGE_DATA_DIR=\"$(PACKAGE_DATA_DIR)\" -DPACKAGE_LIB_DIR=\"$(PACKAGE_LIB_DIR)\" -DPACKAGE_BIN_DIR=\"$(PACKAGE_BIN_DIR)\" -DPKGMODULEDIR=\"$(PKGMODULEDIR)\" -DPKGXMLDATADIR=\"$(PKGXMLDATADIR)\"
+ 
+ LIBS = $(INTLLIBS) @LIBS@
+ 
+diff --git a/src/cups/genppd.c b/src/cups/genppd.c
+index 4eedfce6..f90c4445 100644
+--- a/src/cups/genppd.c
++++ b/src/cups/genppd.c
+@@ -1309,6 +1309,9 @@ write_ppd(
+   else
+     gpputs(fp, "*cupsManualCopies: True\n");
+ 
++  /* Secure supply querying: disable plain SNMP broadcast probing */
++  gpputs(fp, "*cupsSNMPSupplies: False\n");
++
+   stp_describe_parameter(v, "CommandFilterName", &desc);
+   if (desc.p_type == STP_PARAMETER_TYPE_STRING_LIST && desc.is_active)
+     {
+@@ -1774,6 +1777,39 @@ write_ppd(
+     }
+   stp_parameter_description_destroy(&desc);
+ 
++#ifdef __APPLE__
++  if (printer_is_color)
++    {
++      gpputs(fp, "*APPrinterPreset Color/Color: \"\n"
++                 "\t*ColorModel RGB\n"
++                 "\tcom.apple.print.preset.graphicsType General\n"
++                 "\tcom.apple.print.preset.quality mid\n"
++                 "\tcom.apple.print.preset.output-mode color\"\n"
++                 "*End\n");
++      gpputs(fp, "*APPrinterPreset BlackAndWhite/Black and White: \"\n"
++                 "\t*ColorModel Gray\n"
++                 "\tcom.apple.print.preset.graphicsType General\n"
++                 "\tcom.apple.print.preset.quality mid\n"
++                 "\tcom.apple.print.preset.output-mode monochrome\"\n"
++                 "*End\n");
++      gpputs(fp, "*APPrinterPreset Photo/Photo on Photo Paper: \"\n"
++                 "\t*ColorModel RGB\n"
++                 "\tcom.apple.print.preset.graphicsType Photo\n"
++                 "\tcom.apple.print.preset.quality high\n"
++                 "\tcom.apple.print.preset.output-mode color\"\n"
++                 "*End\n");
++    }
++  else
++    {
++      gpputs(fp, "*APPrinterPreset BlackAndWhite/Black and White: \"\n"
++                 "\t*ColorModel Gray\n"
++                 "\tcom.apple.print.preset.graphicsType General\n"
++                 "\tcom.apple.print.preset.quality mid\n"
++                 "\tcom.apple.print.preset.output-mode monochrome\"\n"
++                 "*End\n");
++    }
++#endif
++
+   if (!language)
+     {
+       /*
+diff --git a/src/cups/genppd.h b/src/cups/genppd.h
+index 3452a99f..b8606644 100644
+--- a/src/cups/genppd.h
++++ b/src/cups/genppd.h
+@@ -33,6 +33,10 @@
+  *   write_ppd()         - Write a PPD file.
+  */
+ 
++#ifndef _DARWIN_C_SOURCE
++#define _DARWIN_C_SOURCE 1
++#endif
++
+ #include "i18n.h"
+ #ifdef HAVE_CONFIG_H
+ #include <config.h>
+diff --git a/src/xml/printers/canon.xml b/src/xml/printers/canon.xml
+index 60f2fe6d..4625705c 100644
+--- a/src/xml/printers/canon.xml
++++ b/src/xml/printers/canon.xml
+@@ -1223,6 +1223,7 @@
+       <!-- Canon PIXMA G1000 family -->
+       <printer translate="name" name="Canon G1000 series" driver="bjc-G1000-series" manufacturer="Canon" model="17001000" parameters="PIXMA_iP4000_params">EXPERIMENTAL</printer>
+       <printer translate="name" name="Canon PIXMA G1000" driver="bjc-PIXMA-G1000" manufacturer="Canon" model="17001000" parameters="PIXMA_iP4000_params">EXPERIMENTAL</printer>
++      <printer translate="name" name="Canon PIXMA G1010" driver="bjc-PIXMA-G1010" manufacturer="Canon" model="17001000" parameters="PIXMA_iP4000_params">EXPERIMENTAL</printer>
+       <printer translate="name" name="Canon PIXMA G1100" driver="bjc-PIXMA-G1100" manufacturer="Canon" model="17001000" parameters="PIXMA_iP4000_params">EXPERIMENTAL</printer>
+       <printer translate="name" name="Canon PIXMA G1200" driver="bjc-PIXMA-G1200" manufacturer="Canon" model="17001000" parameters="PIXMA_iP4000_params">EXPERIMENTAL</printer>
+       <printer translate="name" name="Canon PIXMA G1400" driver="bjc-PIXMA-G1400" manufacturer="Canon" model="17001000" parameters="PIXMA_iP4000_params">EXPERIMENTAL</printer>
+-- 
+2.50.1 (Apple Git-155)
+

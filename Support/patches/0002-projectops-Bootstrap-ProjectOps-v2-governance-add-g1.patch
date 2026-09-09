@@ -1,0 +1,1500 @@
+From a35985b97c3764d35073a6741668065535c71d21 Mon Sep 17 00:00:00 2001
+From: nschabra <nschabra.work@gmail.com>
+Date: Wed, 9 Sep 2026 06:05:06 +0530
+Subject: [PATCH 2/5] projectops: Bootstrap ProjectOps v2 governance, add
+ g1010-ctl CLI, clean root files
+
+---
+ .gitignore                                    |   6 +
+ README.md                                     |  52 +++
+ Support/architecture/architecture-master.md   |  16 +
+ .../architecture/assets/architecture-dark.svg |  14 +
+ .../assets/architecture-light.svg             |  14 +
+ Support/assets/changelog-dark.svg             |  14 +
+ Support/assets/changelog-light.svg            |  14 +
+ Support/assets/release-dark.svg               |  14 +
+ Support/assets/release-light.svg              |  14 +
+ Support/assets/rules-dark.svg                 |  14 +
+ Support/assets/rules-light.svg                |  14 +
+ Support/assets/support-dark.svg               |  14 +
+ Support/assets/support-light.svg              |  14 +
+ Support/changelog.md                          |   5 +
+ .../concept-design/CON001_Initial_Concept.md  |   7 +
+ .../assets/concept-design-dark.svg            |  14 +
+ .../assets/concept-design-light.svg           |  14 +
+ .../concept-design/concept-design-master.md   |  16 +
+ Support/context/.pdm-context-source.json      |   6 +
+ Support/context/assets/context-dark.svg       |  14 +
+ Support/context/assets/context-light.svg      |  14 +
+ Support/context/context-master.md             |  16 +
+ Support/context/current-context.md            |  42 ++
+ Support/decisions/assets/decision-dark.svg    |  14 +
+ Support/decisions/assets/decision-light.svg   |  14 +
+ Support/decisions/assets/decisions-dark.svg   |  14 +
+ Support/decisions/assets/decisions-light.svg  |  14 +
+ Support/decisions/decisions-master.md         |  16 +
+ .../assets/documentation-dark.svg             |  14 +
+ .../assets/documentation-light.svg            |  14 +
+ Support/documentation/documentation-master.md |  16 +
+ Support/documentation/documentation-plan.md   |   9 +
+ .../gaps-issues/assets/gaps-issues-dark.svg   |  14 +
+ .../gaps-issues/assets/gaps-issues-light.svg  |  14 +
+ Support/gaps-issues/gaps-issues-master.md     |  16 +
+ Support/plans/assets/plans-dark.svg           |  14 +
+ Support/plans/assets/plans-light.svg          |  14 +
+ Support/plans/plans-master.md                 |  19 +
+ Support/research/assets/research-dark.svg     |  14 +
+ Support/research/assets/research-light.svg    |  14 +
+ Support/research/research-master.md           |  16 +
+ Support/rules.md                              |  13 +
+ Support/support-master.md                     |  51 +++
+ Support/worklog/assets/worklog-dark.svg       |  14 +
+ Support/worklog/assets/worklog-light.svg      |  14 +
+ Support/worklog/worklog-master.md             |  16 +
+ src/cups/g1010-ctl                            | 381 ++++++++++++++++++
+ 47 files changed, 1111 insertions(+)
+ create mode 100644 README.md
+ create mode 100644 Support/architecture/architecture-master.md
+ create mode 100644 Support/architecture/assets/architecture-dark.svg
+ create mode 100644 Support/architecture/assets/architecture-light.svg
+ create mode 100644 Support/assets/changelog-dark.svg
+ create mode 100644 Support/assets/changelog-light.svg
+ create mode 100644 Support/assets/release-dark.svg
+ create mode 100644 Support/assets/release-light.svg
+ create mode 100644 Support/assets/rules-dark.svg
+ create mode 100644 Support/assets/rules-light.svg
+ create mode 100644 Support/assets/support-dark.svg
+ create mode 100644 Support/assets/support-light.svg
+ create mode 100644 Support/changelog.md
+ create mode 100644 Support/concept-design/CON001_Initial_Concept.md
+ create mode 100644 Support/concept-design/assets/concept-design-dark.svg
+ create mode 100644 Support/concept-design/assets/concept-design-light.svg
+ create mode 100644 Support/concept-design/concept-design-master.md
+ create mode 100644 Support/context/.pdm-context-source.json
+ create mode 100644 Support/context/assets/context-dark.svg
+ create mode 100644 Support/context/assets/context-light.svg
+ create mode 100644 Support/context/context-master.md
+ create mode 100644 Support/context/current-context.md
+ create mode 100644 Support/decisions/assets/decision-dark.svg
+ create mode 100644 Support/decisions/assets/decision-light.svg
+ create mode 100644 Support/decisions/assets/decisions-dark.svg
+ create mode 100644 Support/decisions/assets/decisions-light.svg
+ create mode 100644 Support/decisions/decisions-master.md
+ create mode 100644 Support/documentation/assets/documentation-dark.svg
+ create mode 100644 Support/documentation/assets/documentation-light.svg
+ create mode 100644 Support/documentation/documentation-master.md
+ create mode 100644 Support/documentation/documentation-plan.md
+ create mode 100644 Support/gaps-issues/assets/gaps-issues-dark.svg
+ create mode 100644 Support/gaps-issues/assets/gaps-issues-light.svg
+ create mode 100644 Support/gaps-issues/gaps-issues-master.md
+ create mode 100644 Support/plans/assets/plans-dark.svg
+ create mode 100644 Support/plans/assets/plans-light.svg
+ create mode 100644 Support/plans/plans-master.md
+ create mode 100644 Support/research/assets/research-dark.svg
+ create mode 100644 Support/research/assets/research-light.svg
+ create mode 100644 Support/research/research-master.md
+ create mode 100644 Support/rules.md
+ create mode 100644 Support/support-master.md
+ create mode 100644 Support/worklog/assets/worklog-dark.svg
+ create mode 100644 Support/worklog/assets/worklog-light.svg
+ create mode 100644 Support/worklog/worklog-master.md
+ create mode 100755 src/cups/g1010-ctl
+
+diff --git a/.gitignore b/.gitignore
+index e5d3da34..3111242d 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -185,3 +185,9 @@ xml-stamp
+ 
+ # Things that we *do* need
+ !src/xml/printers
++
++# OS & IDE files
++.DS_Store
++*/.DS_Store
++.vscode/
++.idea/
+diff --git a/README.md b/README.md
+new file mode 100644
+index 00000000..f25f2edf
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,52 @@
++# Gutenprint 5.3.5 — Enhanced with Canon PIXMA G1010 & macOS AirPrint
++
++This repository is an enhanced distribution of **Gutenprint 5.3.5** tailored for modern macOS and Haiku systems, featuring native driver support and management tools for the **Canon PIXMA G1010** ink-tank printer family.
++
++---
++
++## Key Features
++
++1. **Native Canon PIXMA G1010 Support**:
++   - Model definition with accurate CMYK color mapping, resolution matrices (up to 4800x1200 dpi), and borderless photo paper profiles.
++2. **Apple GUI Presets & macOS ColorSync**:
++   - Native macOS print panel presets: **Color**, **Black & White**, and **Photo on Photo Paper**.
++   - Two-Sided (Duplex) software workflow enabled in standard print dialogs.
++   - Built-in cybersecurity protection (`*cupsSNMPSupplies: False`) to prevent unauthenticated network SNMP hangs.
++3. **Living Room AirPrint & Web UI Integration**:
++   - Automated IPP Everywhere / AirPrint service (`ippeveprinter`) with live ink supplies reporting at `https://<ip>:8631/supplies`.
++   - Full options forwarding from iOS and macOS devices to the CUPS printer queue.
++4. **Console-Based Installation & Control Tool (`g1010-ctl`)**:
++   - Interactive terminal manager located at [`src/cups/g1010-ctl`](./src/cups/g1010-ctl).
++   - Visual ANSI ink level meters, one-command PPD installation, Color/B&W mode switching, and calibration test prints.
++5. **Project Governance**:
++   - Managed under [ProjectOps v2](./Support/support-master.md) governance (`Support/`).
++
++---
++
++## Console Quickstart
++
++```bash
++# Check printer queue status & live ink levels
++./src/cups/g1010-ctl status
++
++# Set default mode to Color (RGB)
++./src/cups/g1010-ctl set-mode color
++
++# Set default mode to Black & White (Gray)
++./src/cups/g1010-ctl set-mode bw
++
++# Launch the interactive terminal menu
++./src/cups/g1010-ctl menu
++
++# Send a calibration test print
++./src/cups/g1010-ctl test-print --color
++```
++
++---
++
++## Project Documentation & Architecture
++
++For development runbooks, architectural decision records, and roadmaps, see:
++- [ProjectOps Governance Master](./Support/support-master.md)
++- [Rules & Guidelines](./Support/rules.md)
++- [Plans & Milestones](./Support/plans/plans-master.md)
+diff --git a/Support/architecture/architecture-master.md b/Support/architecture/architecture-master.md
+new file mode 100644
+index 00000000..7bbdfacd
+--- /dev/null
++++ b/Support/architecture/architecture-master.md
+@@ -0,0 +1,16 @@
++# Architecture Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++System boundary, component interactions, and current/target state.
++
++## Records
++
++| S.No. | Record | Description | Status |
++| ---: | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/Support/architecture/assets/architecture-dark.svg b/Support/architecture/assets/architecture-dark.svg
+new file mode 100644
+index 00000000..976ff470
+--- /dev/null
++++ b/Support/architecture/assets/architecture-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Architecture">
++  <title>Architecture</title>
++  <desc>Systems, frameworks, and repository dependencies. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><rect x="30" y="12" width="36" height="20" rx="4"/><rect x="12" y="52" width="32" height="20" rx="4"/><rect x="52" y="52" width="32" height="20" rx="4"/><path d="M48 32 v10 M28 42 h40 M28 42 v10 M68 42 v10"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Architecture</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Systems, frameworks, and repository dependencies</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/architecture/assets/architecture-light.svg b/Support/architecture/assets/architecture-light.svg
+new file mode 100644
+index 00000000..8e3a080e
+--- /dev/null
++++ b/Support/architecture/assets/architecture-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Architecture">
++  <title>Architecture</title>
++  <desc>Systems, frameworks, and repository dependencies. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><rect x="30" y="12" width="36" height="20" rx="4"/><rect x="12" y="52" width="32" height="20" rx="4"/><rect x="52" y="52" width="32" height="20" rx="4"/><path d="M48 32 v10 M28 42 h40 M28 42 v10 M68 42 v10"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Architecture</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Systems, frameworks, and repository dependencies</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/changelog-dark.svg b/Support/assets/changelog-dark.svg
+new file mode 100644
+index 00000000..09157ca0
+--- /dev/null
++++ b/Support/assets/changelog-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Changelog">
++  <title>Changelog</title>
++  <desc>What changed, when, and why. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 24 h56 M20 44 h40 M20 64 h48"/><circle cx="76" cy="44" r="8"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Changelog</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">What changed, when, and why</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/changelog-light.svg b/Support/assets/changelog-light.svg
+new file mode 100644
+index 00000000..51880bb2
+--- /dev/null
++++ b/Support/assets/changelog-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Changelog">
++  <title>Changelog</title>
++  <desc>What changed, when, and why. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 24 h56 M20 44 h40 M20 64 h48"/><circle cx="76" cy="44" r="8"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Changelog</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">What changed, when, and why</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/release-dark.svg b/Support/assets/release-dark.svg
+new file mode 100644
+index 00000000..c348f257
+--- /dev/null
++++ b/Support/assets/release-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Release">
++  <title>Release</title>
++  <desc>Cut, tagged, and shipped state of the work. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 12 l32 18 v36 L48 84 L16 66 V30 z"/><path d="M16 30 l32 18 l32-18 M48 48 v36"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Release</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Cut, tagged, and shipped state of the work</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/release-light.svg b/Support/assets/release-light.svg
+new file mode 100644
+index 00000000..d156440c
+--- /dev/null
++++ b/Support/assets/release-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Release">
++  <title>Release</title>
++  <desc>Cut, tagged, and shipped state of the work. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 12 l32 18 v36 L48 84 L16 66 V30 z"/><path d="M16 30 l32 18 l32-18 M48 48 v36"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Release</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Cut, tagged, and shipped state of the work</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/rules-dark.svg b/Support/assets/rules-dark.svg
+new file mode 100644
+index 00000000..f3180548
+--- /dev/null
++++ b/Support/assets/rules-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Rules">
++  <title>Rules</title>
++  <desc>Binding constraints that govern how work is done. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 12 l30 12 v22 c0 20-13 32-30 40-17-8-30-20-30-40 V24 z"/><path d="M36 46 l8 9 l17-18"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Rules</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Binding constraints that govern how work is done</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/rules-light.svg b/Support/assets/rules-light.svg
+new file mode 100644
+index 00000000..2e0835d5
+--- /dev/null
++++ b/Support/assets/rules-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Rules">
++  <title>Rules</title>
++  <desc>Binding constraints that govern how work is done. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 12 l30 12 v22 c0 20-13 32-30 40-17-8-30-20-30-40 V24 z"/><path d="M36 46 l8 9 l17-18"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Rules</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Binding constraints that govern how work is done</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/support-dark.svg b/Support/assets/support-dark.svg
+new file mode 100644
+index 00000000..ba31b010
+--- /dev/null
++++ b/Support/assets/support-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Support">
++  <title>Support</title>
++  <desc>Documentation system entry point and navigation. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18 h30 a10 10 0 0 1 10 10 v50 a8 8 0 0 0-8-8 H14 z"/><path d="M82 18 H52 a10 10 0 0 0-10 10 v50 a8 8 0 0 1 8-8 h32 z"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Support</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Documentation system entry point and navigation</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/assets/support-light.svg b/Support/assets/support-light.svg
+new file mode 100644
+index 00000000..44d9eb60
+--- /dev/null
++++ b/Support/assets/support-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Support">
++  <title>Support</title>
++  <desc>Documentation system entry point and navigation. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18 h30 a10 10 0 0 1 10 10 v50 a8 8 0 0 0-8-8 H14 z"/><path d="M82 18 H52 a10 10 0 0 0-10 10 v50 a8 8 0 0 1 8-8 h32 z"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Support</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Documentation system entry point and navigation</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/changelog.md b/Support/changelog.md
+new file mode 100644
+index 00000000..8e2e8866
+--- /dev/null
++++ b/Support/changelog.md
+@@ -0,0 +1,5 @@
++# Changelog — Gutenprint
++
++## 1.0.0 — 2026-09-09
++
++- Initial ProjectOps v2 bootstrap established.
+diff --git a/Support/concept-design/CON001_Initial_Concept.md b/Support/concept-design/CON001_Initial_Concept.md
+new file mode 100644
+index 00000000..faaed029
+--- /dev/null
++++ b/Support/concept-design/CON001_Initial_Concept.md
+@@ -0,0 +1,7 @@
++# CON001 — Initial System Concept
++
++> **Parent:** [`concept-design-master.md`](./concept-design-master.md) · Date: 2026-09-09
++
++## Concept Summary
++
++Canon PIXMA G1010 driver support, macOS AirPrint integration, and console management tooling.
+diff --git a/Support/concept-design/assets/concept-design-dark.svg b/Support/concept-design/assets/concept-design-dark.svg
+new file mode 100644
+index 00000000..cc32735e
+--- /dev/null
++++ b/Support/concept-design/assets/concept-design-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Concept &amp; Design">
++  <title>Concept &amp; Design</title>
++  <desc>Statements, questions, and proposed direction. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 a22 22 0 0 1 13 39 v9 H35 v-9 a22 22 0 0 1 13-39 z"/><path d="M38 72 h20 M41 82 h14"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Concept &amp; Design</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Statements, questions, and proposed direction</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/concept-design/assets/concept-design-light.svg b/Support/concept-design/assets/concept-design-light.svg
+new file mode 100644
+index 00000000..4dca200d
+--- /dev/null
++++ b/Support/concept-design/assets/concept-design-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Concept &amp; Design">
++  <title>Concept &amp; Design</title>
++  <desc>Statements, questions, and proposed direction. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 a22 22 0 0 1 13 39 v9 H35 v-9 a22 22 0 0 1 13-39 z"/><path d="M38 72 h20 M41 82 h14"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Concept &amp; Design</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Statements, questions, and proposed direction</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/concept-design/concept-design-master.md b/Support/concept-design/concept-design-master.md
+new file mode 100644
+index 00000000..9946a664
+--- /dev/null
++++ b/Support/concept-design/concept-design-master.md
+@@ -0,0 +1,16 @@
++# Concept Design Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Visual and architectural concept intake before promotion.
++
++## Records
++
++| S.No. | Record | Description | Status |
++| ---: | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/Support/context/.pdm-context-source.json b/Support/context/.pdm-context-source.json
+new file mode 100644
+index 00000000..7df4e7a6
+--- /dev/null
++++ b/Support/context/.pdm-context-source.json
+@@ -0,0 +1,6 @@
++{
++  "concept-design/concept-design-master.md": "583b64c996dcf073e7dd12f7c4fa80f1328f227811b2e9210893e8863e7dce59",
++  "decisions/decisions-master.md": "76979f1452524228e627cf368347a9342951ff24fee1449d22e9b47d5c7110c8",
++  "gaps-issues/gaps-issues-master.md": "848a475ef98691c00beea078345300f9ea2c5edde369ecb7af6db475568af5be",
++  "plans/plans-master.md": "8dbc80bd717497fab9b9c61030b69a0029a076e3f5599306ee0efa95e77b630e"
++}
+diff --git a/Support/context/assets/context-dark.svg b/Support/context/assets/context-dark.svg
+new file mode 100644
+index 00000000..3e2baacc
+--- /dev/null
++++ b/Support/context/assets/context-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Context">
++  <title>Context</title>
++  <desc>Current state, scope, and working assumptions. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="48" r="32"/><path d="M62 34 L41 41 L34 62 L55 55 z"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Context</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Current state, scope, and working assumptions</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/context/assets/context-light.svg b/Support/context/assets/context-light.svg
+new file mode 100644
+index 00000000..2a299fd9
+--- /dev/null
++++ b/Support/context/assets/context-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Context">
++  <title>Context</title>
++  <desc>Current state, scope, and working assumptions. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="48" r="32"/><path d="M62 34 L41 41 L34 62 L55 55 z"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Context</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Current state, scope, and working assumptions</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/context/context-master.md b/Support/context/context-master.md
+new file mode 100644
+index 00000000..d2df8e89
+--- /dev/null
++++ b/Support/context/context-master.md
+@@ -0,0 +1,16 @@
++# Context Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Fast project memory and navigation routing for humans and AI agents.
++
++## Records
++
++| S.No. | Record | Description | Status |
++| ---: | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/Support/context/current-context.md b/Support/context/current-context.md
+new file mode 100644
+index 00000000..6f14f06d
+--- /dev/null
++++ b/Support/context/current-context.md
+@@ -0,0 +1,42 @@
++# Current Context — Gutenprint
++
++> **Parent:** [`context-master.md`](./context-master.md) · Date: 2026-09-09
++
++## Active Delivery State
++
++- **Current Goal:** Initial repository bootstrap and setup.
++- **Active Plan:** [`../plans/plans-master.md`](../plans/plans-master.md)
++- **Active Worklog:** None
++
++## Recommended Continuation
++
++Run `pdm plan create` to establish delivery plans, or begin executing open tasks.
++
++## Derived state
++
++<!-- pdm:context:begin derived -->
++_Generated by `pdm context refresh` — do not hand-edit between the markers._
++
++### Snapshot
++
++| Field | Value |
++| --- | --- |
++| Skills in catalog | 0 (0 Lexvora · 0 third-party) |
++| Plan roll-up (TL/PD/IP/CD) | 0 / 0 / 0 / 0 |
++| Gap roll-up (TL/PD/IP/CD) | 0 / 0 / 0 / 0 |
++| Concepts | 0 (0 open) |
++| Decisions | 0 |
++| Branch | `feature/canon-g1010-macos-support` |
++
++_Live values (HEAD, active worklog) are not stored here — run `pdm context resume`._
++
++### Shipped skill versions
++
++| Skill | Version | Origin |
++| --- | --- | --- |
++
++### Open concepts
++
++_None — every concept is Finished or Delivered._
++
++<!-- pdm:context:end derived -->
+diff --git a/Support/decisions/assets/decision-dark.svg b/Support/decisions/assets/decision-dark.svg
+new file mode 100644
+index 00000000..76c4f7b9
+--- /dev/null
++++ b/Support/decisions/assets/decision-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Decisions">
++  <title>Decisions</title>
++  <desc>Accepted direction with rationale and consequence. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 v68"/><path d="M48 26 h26 l8 10 l-8 10 H48"/><path d="M48 52 H22 l-8 10 l8 10 h26"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Decisions</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Accepted direction with rationale and consequence</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/decisions/assets/decision-light.svg b/Support/decisions/assets/decision-light.svg
+new file mode 100644
+index 00000000..36da28f0
+--- /dev/null
++++ b/Support/decisions/assets/decision-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Decisions">
++  <title>Decisions</title>
++  <desc>Accepted direction with rationale and consequence. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 v68"/><path d="M48 26 h26 l8 10 l-8 10 H48"/><path d="M48 52 H22 l-8 10 l8 10 h26"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Decisions</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Accepted direction with rationale and consequence</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/decisions/assets/decisions-dark.svg b/Support/decisions/assets/decisions-dark.svg
+new file mode 100644
+index 00000000..76c4f7b9
+--- /dev/null
++++ b/Support/decisions/assets/decisions-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Decisions">
++  <title>Decisions</title>
++  <desc>Accepted direction with rationale and consequence. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 v68"/><path d="M48 26 h26 l8 10 l-8 10 H48"/><path d="M48 52 H22 l-8 10 l8 10 h26"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Decisions</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Accepted direction with rationale and consequence</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/decisions/assets/decisions-light.svg b/Support/decisions/assets/decisions-light.svg
+new file mode 100644
+index 00000000..36da28f0
+--- /dev/null
++++ b/Support/decisions/assets/decisions-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Decisions">
++  <title>Decisions</title>
++  <desc>Accepted direction with rationale and consequence. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 v68"/><path d="M48 26 h26 l8 10 l-8 10 H48"/><path d="M48 52 H22 l-8 10 l8 10 h26"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Decisions</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Accepted direction with rationale and consequence</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/decisions/decisions-master.md b/Support/decisions/decisions-master.md
+new file mode 100644
+index 00000000..097c4a03
+--- /dev/null
++++ b/Support/decisions/decisions-master.md
+@@ -0,0 +1,16 @@
++# Decisions Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Architecture Decision Records (ADRs) and permanent rationale.
++
++## Records
++
++| S.No. | Record | Description | Status |
++| ---: | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/Support/documentation/assets/documentation-dark.svg b/Support/documentation/assets/documentation-dark.svg
+new file mode 100644
+index 00000000..b1af5a3a
+--- /dev/null
++++ b/Support/documentation/assets/documentation-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Documentation">
++  <title>Documentation</title>
++  <desc>Ownership, structure, and documentation planning. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 14 h32 l18 18 v50 H24 z"/><path d="M56 14 v18 h18"/><path d="M34 50 h28 M34 62 h28"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Documentation</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Ownership, structure, and documentation planning</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/documentation/assets/documentation-light.svg b/Support/documentation/assets/documentation-light.svg
+new file mode 100644
+index 00000000..108c87fd
+--- /dev/null
++++ b/Support/documentation/assets/documentation-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Documentation">
++  <title>Documentation</title>
++  <desc>Ownership, structure, and documentation planning. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M24 14 h32 l18 18 v50 H24 z"/><path d="M56 14 v18 h18"/><path d="M34 50 h28 M34 62 h28"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Documentation</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Ownership, structure, and documentation planning</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/documentation/documentation-master.md b/Support/documentation/documentation-master.md
+new file mode 100644
+index 00000000..315c1165
+--- /dev/null
++++ b/Support/documentation/documentation-master.md
+@@ -0,0 +1,16 @@
++# Documentation Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Documentation quality, standards, and physical codebase coverage.
++
++## Records
++
++| S.No. | Record | Description | Status |
++| ---: | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/Support/documentation/documentation-plan.md b/Support/documentation/documentation-plan.md
+new file mode 100644
+index 00000000..731fb835
+--- /dev/null
++++ b/Support/documentation/documentation-plan.md
+@@ -0,0 +1,9 @@
++# Documentation Plan — Gutenprint
++
++> **Parent:** [`documentation-master.md`](./documentation-master.md) · Date: 2026-09-09
++
++## Repository Physical Root Folder Inventory
++
++| S.No. | Root Folder | Purpose | Documentation Status | Last Reviewed |
++| ---: | --- | --- | --- | --- |
++| 1 | `Support/` | Governed documentation system | [x] | 2026-09-09 |
+diff --git a/Support/gaps-issues/assets/gaps-issues-dark.svg b/Support/gaps-issues/assets/gaps-issues-dark.svg
+new file mode 100644
+index 00000000..0c0ef028
+--- /dev/null
++++ b/Support/gaps-issues/assets/gaps-issues-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Gaps &amp; Issues">
++  <title>Gaps &amp; Issues</title>
++  <desc>Intake register for defects, drift, and open risk. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 l36 62 H12 z"/><path d="M48 40 v18"/><circle cx="48" cy="67" r="2.6" fill="#d2a15f"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Gaps &amp; Issues</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Intake register for defects, drift, and open risk</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/gaps-issues/assets/gaps-issues-light.svg b/Support/gaps-issues/assets/gaps-issues-light.svg
+new file mode 100644
+index 00000000..02fdae3e
+--- /dev/null
++++ b/Support/gaps-issues/assets/gaps-issues-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Gaps &amp; Issues">
++  <title>Gaps &amp; Issues</title>
++  <desc>Intake register for defects, drift, and open risk. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M48 14 l36 62 H12 z"/><path d="M48 40 v18"/><circle cx="48" cy="67" r="2.6" fill="#b88445"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Gaps &amp; Issues</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Intake register for defects, drift, and open risk</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/gaps-issues/gaps-issues-master.md b/Support/gaps-issues/gaps-issues-master.md
+new file mode 100644
+index 00000000..367d7cc4
+--- /dev/null
++++ b/Support/gaps-issues/gaps-issues-master.md
+@@ -0,0 +1,16 @@
++# Gaps & Issues Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Intake of unplanned discoveries, defects, and drift records.
++
++## Records
++
++| S.No. | Record | Description | Status |
++| ---: | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/Support/plans/assets/plans-dark.svg b/Support/plans/assets/plans-dark.svg
+new file mode 100644
+index 00000000..80a3d335
+--- /dev/null
++++ b/Support/plans/assets/plans-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Plans">
++  <title>Plans</title>
++  <desc>Committed work, tasks, milestones, and statistics. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="14" width="60" height="68" rx="6"/><path d="M30 34 l6 6 l12-12"/><path d="M56 36 h12"/><path d="M30 56 l6 6 l12-12"/><path d="M56 58 h12"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Plans</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Committed work, tasks, milestones, and statistics</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/plans/assets/plans-light.svg b/Support/plans/assets/plans-light.svg
+new file mode 100644
+index 00000000..8d142a8a
+--- /dev/null
++++ b/Support/plans/assets/plans-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Plans">
++  <title>Plans</title>
++  <desc>Committed work, tasks, milestones, and statistics. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="14" width="60" height="68" rx="6"/><path d="M30 34 l6 6 l12-12"/><path d="M56 36 h12"/><path d="M30 56 l6 6 l12-12"/><path d="M56 58 h12"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Plans</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Committed work, tasks, milestones, and statistics</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/plans/plans-master.md b/Support/plans/plans-master.md
+new file mode 100644
+index 00000000..2fbbae3c
+--- /dev/null
++++ b/Support/plans/plans-master.md
+@@ -0,0 +1,19 @@
++# Plans Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Index all committed delivery plans for `Gutenprint`.
++
++## Plan Statistics
++
++`TL = PD + IP + CD`. Calculated from task markers in child plans.
++
++| S.No. | Plan Scope | Code | TL | PD | IP | CD | Status |
++| ---: | --- | --- | ---: | ---: | ---: | ---: | --- |
++| 1 | **Total** | — | **0** | **0** | **0** | **0** | Complete |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md) · Rules: [`../rules.md`](../rules.md)
+diff --git a/Support/research/assets/research-dark.svg b/Support/research/assets/research-dark.svg
+new file mode 100644
+index 00000000..30334679
+--- /dev/null
++++ b/Support/research/assets/research-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Research">
++  <title>Research</title>
++  <desc>Investigations, findings, and evidence. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="42" cy="42" r="24"/><path d="M60 60 L80 80"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Research</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Investigations, findings, and evidence</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/research/assets/research-light.svg b/Support/research/assets/research-light.svg
+new file mode 100644
+index 00000000..244795ca
+--- /dev/null
++++ b/Support/research/assets/research-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Research">
++  <title>Research</title>
++  <desc>Investigations, findings, and evidence. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="42" cy="42" r="24"/><path d="M60 60 L80 80"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Research</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Investigations, findings, and evidence</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/research/research-master.md b/Support/research/research-master.md
+new file mode 100644
+index 00000000..7ca64b75
+--- /dev/null
++++ b/Support/research/research-master.md
+@@ -0,0 +1,16 @@
++# Research Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Unsettled investigation, options, spikes, and external references.
++
++## Records
++
++| S.No. | Record | Description | Status |
++| ---: | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/Support/rules.md b/Support/rules.md
+new file mode 100644
+index 00000000..795a43c4
+--- /dev/null
++++ b/Support/rules.md
+@@ -0,0 +1,13 @@
++# Project Rules — Gutenprint
++
++> **Parent:** [`support-master.md`](./support-master.md) · Method: `projectops-v2`
++
++## 1. Governance & Boundary Rules
++
++1. Documentation root casing: `Support`
++2. Git mode: `Direct Main`
++3. Theme: `lexvora-company`
++4. Every governed Markdown table must contain a left-most sequence column named `S.No.` numbered 1..N.
++5. Every Plan task statistics row must strictly balance `TL = PD + IP + CD`.
++6. Use `_` as identifier token separator (e.g. `G_01`, `WL_YYYYMMDD_A`).
++7. All mechanical calculations, worklogs, and commits are managed via the `pdm` CLI.
+diff --git a/Support/support-master.md b/Support/support-master.md
+new file mode 100644
+index 00000000..bfb7f30c
+--- /dev/null
++++ b/Support/support-master.md
+@@ -0,0 +1,51 @@
++# Support Master — Gutenprint
++
++> **Project:** `Gutenprint` · Method: `projectops-v2`
++> **Theme:** `lexvora-company` · **Git mode:** `Direct Main`
++
++## Table of Contents
++
++- [Purpose](#purpose)
++- [Reading Order](#reading-order)
++- [Structure & Deviations](#structure--deviations)
++- [Active Areas](#active-areas)
++- [Footer Navigation](#footer-navigation)
++
++## Purpose
++
++Entry point for the governed project documentation system for `Gutenprint`.
++This folder maintains the authoritative project record across humans and AI agents.
++
++## Reading Order
++
++| S.No. | Step | File | Purpose |
++| ---: | --- | --- | --- |
++| 1 | Orientation | [`rules.md`](./rules.md) | Non-negotiable operating rules and constraints |
++| 2 | Continuation | [`context/current-context.md`](./context/current-context.md) | Current active plans, worklogs, and continuation state |
++| 3 | Intended Work | [`plans/plans-master.md`](./plans/plans-master.md) | Committed outcomes, task lists, and cumulative statistics |
++| 4 | Execution History | [`worklog/worklog-master.md`](./worklog/worklog-master.md) | Bounded work batches and evidence logs |
++
++## Structure & Deviations
++
++| S.No. | Standard Area | Actual Path | State | Note |
++| ---: | --- | --- | --- | --- |
++| 1 | `rules.md` | [`rules.md`](./rules.md) | Standard | Current binding rules |
++| 2 | `context/` | [`context/context-master.md`](./context/context-master.md) | Standard | Fast project memory |
++| 3 | `documentation/` | [`documentation/documentation-master.md`](./documentation/documentation-master.md) | Standard | Documentation coverage tracker |
++| 4 | `research/` | [`research/research-master.md`](./research/research-master.md) | Standard | Unsettled options and references |
++| 5 | `concept-design/` | [`concept-design/concept-design-master.md`](./concept-design/concept-design-master.md) | Standard | Visual and architectural ideas |
++| 6 | `architecture/` | [`architecture/architecture-master.md`](./architecture/architecture-master.md) | Standard | System boundary and component design |
++| 7 | `decisions/` | [`decisions/decisions-master.md`](./decisions/decisions-master.md) | Standard | Architecture Decision Records (ADRs) |
++| 8 | `plans/` | [`plans/plans-master.md`](./plans/plans-master.md) | Standard | Committed delivery plans |
++| 9 | `gaps-issues/` | [`gaps-issues/gaps-issues-master.md`](./gaps-issues/gaps-issues-master.md) | Standard | Defect and discovery intake |
++| 10 | `worklog/` | [`worklog/worklog-master.md`](./worklog/worklog-master.md) | Standard | Bounded dated execution history |
++| 11 | `changelog.md` | [`changelog.md`](./changelog.md) | Standard | Consumer-facing change history |
++
++## Active Areas
++
++- Current active branch: `main`
++- Active Plan: [`plans/plans-master.md`](./plans/plans-master.md)
++
++## Footer Navigation
++
++Project Root: [`../README.md`](../README.md) · Plans: [`plans/plans-master.md`](./plans/plans-master.md)
+diff --git a/Support/worklog/assets/worklog-dark.svg b/Support/worklog/assets/worklog-dark.svg
+new file mode 100644
+index 00000000..8f3d105f
+--- /dev/null
++++ b/Support/worklog/assets/worklog-dark.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Worklog">
++  <title>Worklog</title>
++  <desc>Execution record and multi-agent handoff. Lexvora Company theme, dark appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#061421"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.36)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#d2a15f" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="48" r="32"/><path d="M48 28 v22 h16"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#fbf8f3">Worklog</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#9aa4ad">Execution record and multi-agent handoff</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#9aa4ad" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/worklog/assets/worklog-light.svg b/Support/worklog/assets/worklog-light.svg
+new file mode 100644
+index 00000000..08ffad0a
+--- /dev/null
++++ b/Support/worklog/assets/worklog-light.svg
+@@ -0,0 +1,14 @@
++<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="200" viewBox="0 0 1200 200" role="img" aria-label="Worklog">
++  <title>Worklog</title>
++  <desc>Execution record and multi-agent handoff. Lexvora Company theme, light appearance.</desc>
++  
++  <rect width="1200" height="200" rx="16" fill="#fbf8f3"/>
++  
++  <rect x="0.5" y="0.5" width="1199" height="199" rx="16" fill="none" stroke="rgba(184,132,69,.28)"/>
++  <rect x="0" y="0" width="1200" height="5" rx="2.5" fill="#b88445"/>
++  <g transform="translate(64,52)"><g fill="none" stroke="#b88445" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="48" cy="48" r="32"/><path d="M48 28 v22 h16"/></g></g>
++  <text x="200" y="86" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="42" font-weight="700" fill="#061421">Worklog</text>
++  <rect x="200" y="102" width="54" height="4" rx="2" fill="#b88445"/>
++  <text x="200" y="134" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="17" fill="#5c6670">Execution record and multi-agent handoff</text>
++  <text x="200" y="163" font-family="system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" font-size="14" fill="#5c6670" opacity=".85">Documentation system by Lexvora Consulting</text>
++</svg>
+diff --git a/Support/worklog/worklog-master.md b/Support/worklog/worklog-master.md
+new file mode 100644
+index 00000000..6be2ae47
+--- /dev/null
++++ b/Support/worklog/worklog-master.md
+@@ -0,0 +1,16 @@
++# Worklog Master — Gutenprint
++
++> **Parent:** [`../support-master.md`](../support-master.md) · Method: `projectops-v2`
++
++## Purpose
++
++Index of all bounded working batches executed for `Gutenprint`.
++
++## Worklog Index
++
++| S.No. | Worklog ID | Date | Plan(s) | Status | Objective |
++| ---: | --- | --- | --- | --- | --- |
++
++## Footer Navigation
++
++Parent: [`../support-master.md`](../support-master.md)
+diff --git a/src/cups/g1010-ctl b/src/cups/g1010-ctl
+new file mode 100755
+index 00000000..bece371c
+--- /dev/null
++++ b/src/cups/g1010-ctl
+@@ -0,0 +1,381 @@
++#!/usr/bin/env python3
++"""
++Canon PIXMA G1010 Console Installation & Configuration Tool (g1010-ctl)
++Gutenprint Driver Management, Color/B&W Mode Switching, and Supply Monitoring.
++"""
++
++import sys
++import os
++import subprocess
++import argparse
++import re
++import urllib.request
++import ssl
++
++# ANSI Color Codes
++RESET = "\033[0m"
++BOLD = "\033[1m"
++DIM = "\033[2m"
++RED = "\033[31m"
++GREEN = "\033[32m"
++YELLOW = "\033[33m"
++BLUE = "\033[34m"
++MAGENTA = "\033[35m"
++CYAN = "\033[36m"
++WHITE = "\033[37m"
++
++DEFAULT_USB_PRINTER = "Canon_G1010"
++DEFAULT_AIRPRINT_PRINTER = "Canon_G1010_2"
++SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
++REPO_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, "../.."))
++
++def print_banner():
++    print(f"\n{BOLD}{CYAN}==============================================================={RESET}")
++    print(f"{BOLD}{WHITE}   Canon PIXMA G1010 - Console Control & Installation Tool{RESET}")
++    print(f"{DIM}         Gutenprint 5.3.5 / macOS & AirPrint Management{RESET}")
++    print(f"{BOLD}{CYAN}==============================================================={RESET}\n")
++
++def get_cups_printers():
++    try:
++        out = subprocess.check_output(["lpstat", "-p", "-d", "-v"], stderr=subprocess.DEVNULL, text=True)
++        printers = {}
++        for line in out.splitlines():
++            m = re.match(r"^printer\s+([^\s]+)\s+is\s+([^\.]+)", line)
++            if m:
++                p_name, p_state = m.group(1), m.group(2).strip()
++                if p_name not in printers:
++                    printers[p_name] = {"state": p_state, "device": ""}
++            m_dev = re.match(r"^device for ([^:]+):\s+(.*)", line)
++            if m_dev:
++                p_name, dev_uri = m_dev.group(1), m_dev.group(2).strip()
++                if p_name in printers:
++                    printers[p_name]["device"] = dev_uri
++        return printers
++    except Exception:
++        return {}
++
++def get_printer_options(printer_name):
++    try:
++        out = subprocess.check_output(["lpoptions", "-p", printer_name, "-l"], stderr=subprocess.DEVNULL, text=True)
++        options = {}
++        for line in out.splitlines():
++            if ":" in line:
++                key_part, val_part = line.split(":", 1)
++                opt_key = key_part.split("/")[0].strip()
++                choices = val_part.strip().split()
++                default = None
++                for c in choices:
++                    if c.startswith("*"):
++                        default = c[1:]
++                        break
++                options[opt_key] = {"default": default, "choices": choices}
++        return options
++    except Exception:
++        return {}
++
++def get_ipp_supplies():
++    supplies = []
++    try:
++        ctx = ssl.create_default_context()
++        ctx.check_hostname = False
++        ctx.verify_mode = ssl.CERT_NONE
++        req = urllib.request.Request("https://127.0.0.1:8631/supplies")
++        with urllib.request.urlopen(req, context=ctx, timeout=2) as resp:
++            html = resp.read().decode("utf-8", errors="ignore")
++            rows = re.findall(r"<tr><th>([^:<]+):?</th>.*?value=[\"'](\d+)[\"']", html)
++            for name, val in rows:
++                supplies.append((name.strip(), int(val)))
++    except Exception:
++        pass
++    return supplies
++
++def render_meter(val, color_code):
++    bar_width = 25
++    filled = int(round((val / 100.0) * bar_width))
++    empty = bar_width - filled
++    bar = f"{color_code}{'█' * filled}{DIM}{'░' * empty}{RESET}"
++    return f"[{bar}] {BOLD}{val:3d}%{RESET}"
++
++def cmd_status(args):
++    print_banner()
++    printers = get_cups_printers()
++    
++    if not printers:
++        print(f"{YELLOW}No CUPS printer queues found.{RESET}\n")
++        return
++
++    print(f"{BOLD}Configured CUPS Printer Queues:{RESET}")
++    for p_name, info in printers.items():
++        state_color = GREEN if "idle" in info["state"].lower() else YELLOW
++        print(f"  • {BOLD}{p_name}{RESET}: {state_color}{info['state']}{RESET}")
++        print(f"    {DIM}Device: {info['device']}{RESET}")
++
++        opts = get_printer_options(p_name)
++        color_model = opts.get("ColorModel", {}).get("default", "N/A")
++        duplex = opts.get("Duplex", {}).get("default", "N/A")
++        quality = opts.get("cupsPrintQuality", {}).get("default") or opts.get("StpQuality", {}).get("default", "N/A")
++
++        cm_display = f"{GREEN}{BOLD}Color (RGB/CMYK){RESET}" if "rgb" in color_model.lower() or "cmyk" in color_model.lower() else f"{WHITE}Monochrome ({color_model}){RESET}"
++        print(f"    Mode:   {cm_display}")
++        print(f"    Duplex: {BOLD}{duplex}{RESET}")
++        print(f"    Quality:{BOLD} {quality}{RESET}")
++        print()
++
++    # Ink Supplies
++    supplies = get_ipp_supplies()
++    if supplies:
++        print(f"{BOLD}AirPrint / Living Room Ink Supplies Status:{RESET}")
++        for name, val in supplies:
++            c = WHITE
++            if "black" in name.lower():
++                c = WHITE
++            elif "cyan" in name.lower():
++                c = CYAN
++            elif "magenta" in name.lower():
++                c = MAGENTA
++            elif "yellow" in name.lower():
++                c = YELLOW
++            elif "waste" in name.lower():
++                c = RED
++            meter = render_meter(val, c)
++            print(f"  {c}{BOLD}{name:<16}{RESET} {meter}")
++        print()
++    else:
++        print(f"{DIM}Note: Supplies polling offline or printer not queried yet.{RESET}\n")
++
++def cmd_set_mode(args):
++    mode = args.mode.lower()
++    printer = args.printer or DEFAULT_USB_PRINTER
++    color_choice = "RGB" if mode in ["color", "colour", "rgb", "cmyk"] else "Gray"
++
++    print(f"Configuring default Color Mode for {BOLD}{printer}{RESET} to: {BOLD}{color_choice}{RESET}...")
++    try:
++        subprocess.run(["lpoptions", "-p", printer, "-o", f"ColorModel={color_choice}"], check=True)
++        subprocess.run(["lpadmin", "-p", printer, "-o", f"ColorModel-default={color_choice}"], check=False)
++        print(f"{GREEN}✓ Successfully set {printer} default mode to {color_choice}!{RESET}\n")
++    except Exception as e:
++        print(f"{RED}✗ Failed to set mode: {e}{RESET}\n")
++
++def cmd_set_duplex(args):
++    duplex = args.duplex.lower()
++    printer = args.printer or DEFAULT_USB_PRINTER
++    
++    if duplex in ["on", "true", "yes", "duplex", "long"]:
++        choice = "DuplexNoTumble"
++    elif duplex in ["short", "tumble"]:
++        choice = "DuplexTumble"
++    else:
++        choice = "None"
++
++    print(f"Configuring default Two-Sided (Duplex) for {BOLD}{printer}{RESET} to: {BOLD}{choice}{RESET}...")
++    try:
++        subprocess.run(["lpoptions", "-p", printer, "-o", f"Duplex={choice}"], check=True)
++        subprocess.run(["lpadmin", "-p", printer, "-o", f"Duplex-default={choice}"], check=False)
++        print(f"{GREEN}✓ Successfully set {printer} Duplex to {choice}!{RESET}\n")
++    except Exception as e:
++        print(f"{RED}✗ Failed to set duplex: {e}{RESET}\n")
++
++def cmd_install(args):
++    print_banner()
++    print(f"{BOLD}Starting Automated Gutenprint 5.3.5 PPD Installation for G1010...{RESET}\n")
++    
++    genppd_bin = os.path.join(REPO_ROOT, "src/cups/cups-genppd.5.3")
++    xml_path = os.path.join(REPO_ROOT, "src/xml")
++    module_path = f"{REPO_ROOT}/src/main/.libs:{REPO_ROOT}/src/main"
++    out_dir = "/tmp/g1010_install"
++    os.makedirs(out_dir, exist_ok=True)
++
++    if not os.path.exists(genppd_bin):
++        print(f"{YELLOW}Building cups-genppd.5.3...{RESET}")
++        subprocess.check_call(["make", "-C", os.path.join(REPO_ROOT, "src/cups")], cwd=REPO_ROOT)
++
++    print(f"Generating optimized native PPD for Canon PIXMA G1010...")
++    env = os.environ.copy()
++    env["STP_MODULE_PATH"] = module_path
++    env["STP_DATA_PATH"] = xml_path
++    
++    subprocess.check_call([genppd_bin, "-p", out_dir, "-Z", "-l", "en", "bjc-PIXMA-G1010"], env=env)
++    
++    ppd_path = os.path.join(out_dir, "stp-bjc-PIXMA-G1010.5.3.ppd")
++    if not os.path.exists(ppd_path):
++        print(f"{RED}Error: Generated PPD not found at {ppd_path}{RESET}")
++        return
++
++    with open(ppd_path, "r") as f:
++        ppd_content = f.read()
++
++    duplex_block = """*OpenUI *Duplex/Two-Sided: PickOne
++*OrderDependency: 10 AnySetup *Duplex
++*DefaultDuplex: None
++*Duplex None/Off: "<</Duplex false>>setpagedevice"
++*Duplex DuplexNoTumble/Long-Edge (standard): "<</Duplex true/Tumble false>>setpagedevice"
++*Duplex DuplexTumble/Short-Edge (flip): "<</Duplex true/Tumble true>>setpagedevice"
++*CloseUI: *Duplex
++"""
++    if "*OpenUI *Duplex" not in ppd_content:
++        ppd_content = ppd_content.replace("*OpenUI *MediaType", duplex_block + "\n*OpenUI *MediaType")
++        with open(ppd_path, "w") as f:
++            f.write(ppd_content)
++
++    print(f"Validating PPD syntax with cupstestppd...")
++    subprocess.run(["cupstestppd", "-W", "none", ppd_path], check=False)
++
++    target_queue = args.printer or DEFAULT_USB_PRINTER
++    print(f"Updating CUPS Queue {BOLD}{target_queue}{RESET} with latest driver...")
++    subprocess.check_call(["lpadmin", "-p", target_queue, "-P", ppd_path])
++    print(f"{GREEN}✓ Successfully installed native Gutenprint 5.3.5 PPD for {target_queue}!{RESET}\n")
++
++def cmd_test_print(args):
++    printer = args.printer or DEFAULT_USB_PRINTER
++    mode = "Color" if args.color else ("BW" if args.bw else "Color")
++    color_model = "RGB" if mode == "Color" else "Gray"
++
++    print(f"Generating test calibration page ({BOLD}{mode}{RESET}) for {BOLD}{printer}{RESET}...")
++    
++    ps_content = f"""%!PS
++/Helvetica-Bold findfont 24 scalefont setfont
++100 700 moveto (Canon PIXMA G1010 Test Page) show
++/Helvetica findfont 14 scalefont setfont
++100 670 moveto (Gutenprint 5.3.5 Driver - Mode: {mode}) show
++
++% Draw Color Bands
++gsave
++100 550 80 80 rectfill % Black
++grestore
++
++gsave
++0 0.8 0.8 setrgbcolor
++200 550 80 80 rectfill % Cyan
++grestore
++
++gsave
++0.8 0 0.8 setrgbcolor
++300 550 80 80 rectfill % Magenta
++grestore
++
++gsave
++0.9 0.9 0 setrgbcolor
++400 550 80 80 rectfill % Yellow
++grestore
++
++/Helvetica findfont 10 scalefont setfont
++100 535 moveto (BLACK) show
++210 535 moveto (CYAN) show
++305 535 moveto (MAGENTA) show
++410 535 moveto (YELLOW) show
++
++showpage
++"""
++    tmp_ps = f"/tmp/g1010_test_{mode}.ps"
++    with open(tmp_ps, "w") as f:
++        f.write(ps_content)
++
++    cmd = ["lp", "-d", printer, "-o", f"ColorModel={color_model}", "-t", f"G1010_{mode}_Test", tmp_ps]
++    print(f"Sending print job via command: {' '.join(cmd)}")
++    res = subprocess.run(cmd, capture_output=True, text=True)
++    if res.returncode == 0:
++        print(f"{GREEN}✓ Print job sent successfully: {res.stdout.strip()}{RESET}\n")
++    else:
++        print(f"{RED}✗ Error sending print job: {res.stderr.strip()}{RESET}\n")
++
++def cmd_menu(args):
++    while True:
++        print_banner()
++        print(f"Select an action:")
++        print(f"  {BOLD}1{RESET}) View Printer & Ink Status")
++        print(f"  {BOLD}2{RESET}) Set Default Mode to {GREEN}{BOLD}Color (RGB){RESET}")
++        print(f"  {BOLD}3{RESET}) Set Default Mode to {WHITE}{BOLD}Black & White (Gray){RESET}")
++        print(f"  {BOLD}4{RESET}) Toggle Two-Sided (Duplex) Setting")
++        print(f"  {BOLD}5{RESET}) Re-install / Update Latest Gutenprint 5.3.5 PPD")
++        print(f"  {BOLD}6{RESET}) Print Color Test Page")
++        print(f"  {BOLD}7{RESET}) Print Black & White Test Page")
++        print(f"  {BOLD}8{RESET}) Open Supplies Webpage in Browser")
++        print(f"  {BOLD}Q{RESET}) Quit\n")
++
++        choice = input("Enter choice [1-8, Q]: ").strip().lower()
++        if choice == "1":
++            cmd_status(args)
++            input("\nPress Enter to continue...")
++        elif choice == "2":
++            args.mode = "color"
++            args.printer = None
++            cmd_set_mode(args)
++            input("\nPress Enter to continue...")
++        elif choice == "3":
++            args.mode = "bw"
++            args.printer = None
++            cmd_set_mode(args)
++            input("\nPress Enter to continue...")
++        elif choice == "4":
++            opts = get_printer_options(DEFAULT_USB_PRINTER)
++            curr = opts.get("Duplex", {}).get("default", "None")
++            new_val = "None" if curr != "None" else "DuplexNoTumble"
++            args.duplex = new_val
++            args.printer = None
++            cmd_set_duplex(args)
++            input("\nPress Enter to continue...")
++        elif choice == "5":
++            args.printer = None
++            cmd_install(args)
++            input("\nPress Enter to continue...")
++        elif choice == "6":
++            args.color = True
++            args.bw = False
++            args.printer = None
++            cmd_test_print(args)
++            input("\nPress Enter to continue...")
++        elif choice == "7":
++            args.color = False
++            args.bw = True
++            args.printer = None
++            cmd_test_print(args)
++            input("\nPress Enter to continue...")
++        elif choice == "8":
++            subprocess.run(["open", "https://localhost:8631/supplies"])
++        elif choice in ["q", "quit", "exit"]:
++            print(f"\n{GREEN}Goodbye!{RESET}\n")
++            break
++
++def main():
++    parser = argparse.ArgumentParser(description="Canon G1010 Console Configuration & Management Tool")
++    subparsers = parser.add_subparsers(dest="command", help="Available commands")
++
++    p_status = subparsers.add_parser("status", help="Show printer queues, mode, and ink supplies")
++
++    p_mode = subparsers.add_parser("set-mode", help="Set printer default mode (color or bw)")
++    p_mode.add_argument("mode", choices=["color", "bw", "rgb", "gray"], help="Color mode to set")
++    p_mode.add_argument("-p", "--printer", help="Target printer queue name")
++
++    p_duplex = subparsers.add_parser("set-duplex", help="Set two-sided printing option")
++    p_duplex.add_argument("duplex", choices=["on", "off", "short", "long"], help="Duplex setting")
++    p_duplex.add_argument("-p", "--printer", help="Target printer queue name")
++
++    p_install = subparsers.add_parser("install", help="Install / regenerate latest Gutenprint 5.3.5 PPD")
++    p_install.add_argument("-p", "--printer", help="Target printer queue name")
++
++    p_test = subparsers.add_parser("test-print", help="Send a test print page")
++    p_test.add_argument("--color", action="store_true", help="Print in color")
++    p_test.add_argument("--bw", action="store_true", help="Print in black & white")
++    p_test.add_argument("-p", "--printer", help="Target printer queue name")
++
++    p_menu = subparsers.add_parser("menu", help="Launch interactive console menu")
++
++    args = parser.parse_args()
++
++    if args.command == "status":
++        cmd_status(args)
++    elif args.command == "set-mode":
++        cmd_set_mode(args)
++    elif args.command == "set-duplex":
++        cmd_set_duplex(args)
++    elif args.command == "install":
++        cmd_install(args)
++    elif args.command == "test-print":
++        cmd_test_print(args)
++    elif args.command == "menu":
++        cmd_menu(args)
++    else:
++        cmd_status(args)
++
++if __name__ == "__main__":
++    main()
+-- 
+2.50.1 (Apple Git-155)
+
