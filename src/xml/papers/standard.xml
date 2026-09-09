@@ -843,7 +843,7 @@
       <unit value="metric-extended"/>
       <type value="envelope"/>
     </paper>
-    <paper name="w229h459_l">
+    <paper name="w459h229_l">
       <description translate="value" value="C7-6 landscape"/>
       <comment value="81mm x 162mm landscape"/>
       <width value="459"/>
@@ -1168,7 +1168,7 @@
       <unit value="metric-extended"/>
       <type value="envelope"/>
     </paper>
-    <paper name="w255h581_l">
+    <paper name="w581h255_l">
       <description translate="value" value="Japanese long envelope #4 landscape"/>
       <width value="581"/>
       <height value="255"/>
@@ -1196,7 +1196,7 @@
       <unit value="metric-extended"/>
       <type value="envelope"/>
     </paper>
-    <paper name="w277h538_l">
+    <paper name="w538h277_l">
       <description translate="value" value="Japanese Western-style envelope #6 landscape"/>
       <width value="538"/>
       <height value="277"/>

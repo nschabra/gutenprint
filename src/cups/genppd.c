@@ -648,8 +648,11 @@ static void
 print_color_setup(gpFile fp, int simplified, int printer_is_color,
 		  const stp_string_list_t *po)
 {
+#ifdef __APPLE__
+  gpputs(fp, "*OpenGroup: Color/Color Options\n\n");
+#endif
   gpputs(fp, "*ColorKeyWords: \"ColorModel\"\n");
-  gpprintf(fp, "*OpenUI *ColorModel/%s: PickOne\n", _("Color Model"));
+  gpprintf(fp, "*OpenUI *ColorModel/%s: PickOne\n", _("Color Mode"));
   gpputs(fp, "*OPOptionHints ColorModel: \"radiobuttons\"\n");
   gpputs(fp, "*OrderDependency: 2 AnySetup *ColorModel\n");
 
@@ -669,14 +672,7 @@ print_color_setup(gpFile fp, int simplified, int printer_is_color,
 	       "/cupsColorOrder %d"
 	       "%s"
 	       ">>setpagedevice\"\n",
-           _("Grayscale"), CUPS_CSPACE_W, CUPS_ORDER_CHUNKED,
-	   simplified ? "/cupsBitsPerColor 8/cupsPreferredBitsPerColor 16" : "");
-  gpprintf(fp, "*ColorModel Black/%s:\t\"<<"
-               "/cupsColorSpace %d"
-	       "/cupsColorOrder %d"
-	       "%s"
-	       ">>setpagedevice\"\n",
-           _("Inverted Grayscale"), CUPS_CSPACE_K, CUPS_ORDER_CHUNKED,
+           _("Black and White"), CUPS_CSPACE_W, CUPS_ORDER_CHUNKED,
 	   simplified ? "/cupsBitsPerColor 8/cupsPreferredBitsPerColor 16" : "");
 
   if (printer_is_color)
@@ -686,32 +682,37 @@ print_color_setup(gpFile fp, int simplified, int printer_is_color,
 		 "/cupsColorOrder %d"
 	         "%s"
 		 ">>setpagedevice\"\n",
-             _("RGB Color"), CUPS_CSPACE_RGB, CUPS_ORDER_CHUNKED,
+             _("Color"), CUPS_CSPACE_RGB, CUPS_ORDER_CHUNKED,
 	     simplified ? "/cupsBitsPerColor 8/cupsPreferredBitsPerColor 16" : "");
-    gpprintf(fp, "*ColorModel CMY/%s:\t\"<<"
-                 "/cupsColorSpace %d"
-		 "/cupsColorOrder %d"
-	         "%s"
-		 ">>setpagedevice\"\n",
-             _("CMY Color"), CUPS_CSPACE_CMY, CUPS_ORDER_CHUNKED,
-	     simplified ? "/cupsBitsPerColor 8/cupsPreferredBitsPerColor 16" : "");
-    gpprintf(fp, "*ColorModel CMYK/%s:\t\"<<"
-                 "/cupsColorSpace %d"
-		 "/cupsColorOrder %d"
-	         "%s"
-		 ">>setpagedevice\"\n",
-             _("CMYK"), CUPS_CSPACE_CMYK, CUPS_ORDER_CHUNKED,
-	     simplified ? "/cupsBitsPerColor 8/cupsPreferredBitsPerColor 16" : "");
-    gpprintf(fp, "*ColorModel KCMY/%s:\t\"<<"
-                 "/cupsColorSpace %d"
-		 "/cupsColorOrder %d"
-	         "%s"
-		 ">>setpagedevice\"\n",
-             _("KCMY"), CUPS_CSPACE_KCMY, CUPS_ORDER_CHUNKED,
-	     simplified ? "/cupsBitsPerColor 8/cupsPreferredBitsPerColor 16" : "");
+    if (!simplified)
+    {
+      gpprintf(fp, "*ColorModel Black/%s:\t\"<<"
+                   "/cupsColorSpace %d"
+	           "/cupsColorOrder %d"
+	           ">>setpagedevice\"\n",
+               _("Inverted Grayscale"), CUPS_CSPACE_K, CUPS_ORDER_CHUNKED);
+      gpprintf(fp, "*ColorModel CMY/%s:\t\"<<"
+                   "/cupsColorSpace %d"
+		   "/cupsColorOrder %d"
+		   ">>setpagedevice\"\n",
+               _("CMY Color"), CUPS_CSPACE_CMY, CUPS_ORDER_CHUNKED);
+      gpprintf(fp, "*ColorModel CMYK/%s:\t\"<<"
+                   "/cupsColorSpace %d"
+		   "/cupsColorOrder %d"
+		   ">>setpagedevice\"\n",
+               _("CMYK"), CUPS_CSPACE_CMYK, CUPS_ORDER_CHUNKED);
+      gpprintf(fp, "*ColorModel KCMY/%s:\t\"<<"
+                   "/cupsColorSpace %d"
+		   "/cupsColorOrder %d"
+		   ">>setpagedevice\"\n",
+               _("KCMY"), CUPS_CSPACE_KCMY, CUPS_ORDER_CHUNKED);
+    }
   }
 
   gpputs(fp, "*CloseUI: *ColorModel\n\n");
+#ifdef __APPLE__
+  gpputs(fp, "*CloseGroup: Color\n\n");
+#endif
   if (!simplified)
     {
       /*
@@ -1373,9 +1374,13 @@ write_ppd(
 
   print_color_setup(fp, simplified, printer_is_color, po);
 
- /*
-  * Media types...
-  */
+  /*
+   * Media types...
+   */
+
+#ifdef __APPLE__
+  gpputs(fp, "*OpenGroup: Media/Media and Quality\n\n");
+#endif
 
   stp_describe_parameter(v, "MediaType", &desc);
 
@@ -1632,6 +1637,9 @@ write_ppd(
 	  stp_string_list_destroy(res_list);
 	  stp_clear_string_parameter(v, "Resolution");
 	  gpputs(fp, "*CloseUI: *Resolution\n\n");
+#ifdef __APPLE__
+	  gpputs(fp, "*CloseGroup: Media\n\n");
+#endif
 	}
     }
 
@@ -1657,6 +1665,10 @@ write_ppd(
   * else the PPD files will not be generated correctly
   */
 
+#ifdef __APPLE__
+  gpputs(fp, "*cupsBackSide: Normal\n");
+  gpputs(fp, "*OpenGroup: Finishing/Finishing Options\n\n");
+#endif
   stp_describe_parameter(v, "Duplex", &desc);
   if (desc.is_active && desc.p_type == STP_PARAMETER_TYPE_STRING_LIST)
     {
@@ -1667,7 +1679,7 @@ write_ppd(
 	  stp_parameter_has_category_value(v, &desc, "Color", "Yes");
 	if (is_color_opt)
 	  gpprintf(fp, "*ColorKeyWords: \"InputSlot\"\n");
-        gpprintf(fp, "*OpenUI *Duplex/%s: PickOne\n", _("2-Sided Printing"));
+        gpprintf(fp, "*OpenUI *Duplex/%s: PickOne\n", _("Two-Sided"));
 	gpputs(fp, "*OPOptionHints Duplex: \"radiobuttons\"\n");
         gpputs(fp, "*OrderDependency: 10 AnySetup *Duplex\n");
 	gpprintf(fp, "*StpStp%s: %d %d %d %d %d %.3f %.3f %.3f\n",
@@ -1689,6 +1701,21 @@ write_ppd(
         gpputs(fp, "*CloseUI: *Duplex\n\n");
       }
     }
+#ifdef __APPLE__
+  else
+    {
+      /* Support Two-Sided in macOS print dialog for manual duplex printing */
+      gpprintf(fp, "*OpenUI *Duplex/%s: PickOne\n", _("Two-Sided"));
+      gpputs(fp, "*OPOptionHints Duplex: \"radiobuttons\"\n");
+      gpputs(fp, "*OrderDependency: 10 AnySetup *Duplex\n");
+      gpputs(fp, "*DefaultDuplex: None\n");
+      gpputs(fp, "*Duplex None/Off: \"<</Duplex false>>setpagedevice\"\n");
+      gpputs(fp, "*Duplex DuplexNoTumble/Long-Edge (standard): \"<</Duplex true/Tumble false>>setpagedevice\"\n");
+      gpputs(fp, "*Duplex DuplexTumble/Short-Edge (flip): \"<</Duplex true/Tumble true>>setpagedevice\"\n");
+      gpputs(fp, "*CloseUI: *Duplex\n\n");
+    }
+  gpputs(fp, "*CloseGroup: Finishing\n\n");
+#endif
   stp_parameter_description_destroy(&desc);
 
   /* Collation */
@@ -1768,7 +1795,7 @@ write_ppd(
 	  for (i = 0; i < num_opts; i++)
 	    {
 	      opt = stp_string_list_param(desc.bounds.str, i);
-	      if (strcmp(opt->name, "None") != 0)
+	      if (strcmp(opt->name, "None") != 0 && strcmp(opt->name, "Photo") != 0)
 		gpprintf(fp, "*APPrinterPreset %s/%s: \"*StpImageType %s\"\n",
 			 opt->name, stp_i18n_lookup(po, opt->text), opt->name);
 	    }
@@ -1780,31 +1807,55 @@ write_ppd(
 #ifdef __APPLE__
   if (printer_is_color)
     {
-      gpputs(fp, "*APPrinterPreset Color/Color: \"\n"
+      gpputs(fp, "*APPrinterPreset General_Color/Default Color: \"\n"
                  "\t*ColorModel RGB\n"
+                 "\t*MediaType Plain\n"
+                 "\t*StpQuality Standard\n"
                  "\tcom.apple.print.preset.graphicsType General\n"
                  "\tcom.apple.print.preset.quality mid\n"
                  "\tcom.apple.print.preset.output-mode color\"\n"
                  "*End\n");
-      gpputs(fp, "*APPrinterPreset BlackAndWhite/Black and White: \"\n"
+      gpputs(fp, "*APPrinterPreset General_BW/Black and White: \"\n"
                  "\t*ColorModel Gray\n"
+                 "\t*MediaType Plain\n"
+                 "\t*StpQuality Standard\n"
                  "\tcom.apple.print.preset.graphicsType General\n"
                  "\tcom.apple.print.preset.quality mid\n"
                  "\tcom.apple.print.preset.output-mode monochrome\"\n"
                  "*End\n");
-      gpputs(fp, "*APPrinterPreset Photo/Photo on Photo Paper: \"\n"
+      gpputs(fp, "*APPrinterPreset Photo_Best/High Quality Photo: \"\n"
                  "\t*ColorModel RGB\n"
+                 "\t*MediaType PhotoPlusGloss2\n"
+                 "\t*StpQuality Best\n"
                  "\tcom.apple.print.preset.graphicsType Photo\n"
                  "\tcom.apple.print.preset.quality high\n"
                  "\tcom.apple.print.preset.output-mode color\"\n"
                  "*End\n");
+      gpputs(fp, "*APPrinterPreset Draft_BW/Draft - Black and White: \"\n"
+                 "\t*ColorModel Gray\n"
+                 "\t*MediaType Plain\n"
+                 "\t*StpQuality None\n"
+                 "\tcom.apple.print.preset.graphicsType General\n"
+                 "\tcom.apple.print.preset.quality draft\n"
+                 "\tcom.apple.print.preset.output-mode monochrome\"\n"
+                 "*End\n");
     }
   else
     {
-      gpputs(fp, "*APPrinterPreset BlackAndWhite/Black and White: \"\n"
+      gpputs(fp, "*APPrinterPreset General_BW/Black and White: \"\n"
                  "\t*ColorModel Gray\n"
+                 "\t*MediaType Plain\n"
+                 "\t*StpQuality Standard\n"
                  "\tcom.apple.print.preset.graphicsType General\n"
                  "\tcom.apple.print.preset.quality mid\n"
+                 "\tcom.apple.print.preset.output-mode monochrome\"\n"
+                 "*End\n");
+      gpputs(fp, "*APPrinterPreset Draft_BW/Draft - Black and White: \"\n"
+                 "\t*ColorModel Gray\n"
+                 "\t*MediaType Plain\n"
+                 "\t*StpQuality None\n"
+                 "\tcom.apple.print.preset.graphicsType General\n"
+                 "\tcom.apple.print.preset.quality draft\n"
                  "\tcom.apple.print.preset.output-mode monochrome\"\n"
                  "*End\n");
     }

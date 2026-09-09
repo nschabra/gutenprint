@@ -17,8 +17,8 @@
 
 | S.No. | Plan Scope | TL | PD | IP | CD |
 | ---: | --- | ---: | ---: | ---: | ---: |
-| 1 | `MACUI` direct tasks | 7 | 7 | 0 | 0 |
-| 2 | Total | **7** | **7** | **0** | **0** |
+| 1 | `MACUI` direct tasks | 7 | 0 | 0 | 7 |
+| 2 | Total | **7** | **0** | **0** | **7** |
 
 ## Context
 
@@ -31,13 +31,13 @@ Deliver a fully functioning native macOS Print Dialog (`Cmd+P`) for the Canon PI
 
 ## 01. Execution Tasks
 
-- [ ] `MACUI-01.01` Audit current PPD baseline and eliminate invalid dimensions (`w229h459_l`, `w255h581_l`, `w277h538_l`) in `cupstestppd`
-- [ ] `MACUI-01.02` Structure Apple standard UI groups (`*OpenGroup: Color/Color Options`, `*OpenGroup: Media/Media and Quality`) in `genppd.c`
-- [ ] `MACUI-01.03` Inject `*cupsBackSide: Normal` and configure `*Duplex` directives to activate native macOS Two-Sided controls
-- [ ] `MACUI-01.04` Standardize `ColorModel` options to clean `Gray` (Black and White) and `RGB` (Color) entries with proper default selection
-- [ ] `MACUI-01.05` Generate unified Apple Print Presets (`*APPrinterPreset`) for 1-click preset switching without duplicate keys
-- [ ] `MACUI-01.06` Regenerate active PPDs (`/etc/cups/ppd/Canon_G1010.ppd` and `/etc/cups/ppd/Canon_G1010_2.ppd`) and reload CUPS daemon
-- [ ] `MACUI-01.07` Verify macOS print dialog UI controls, Presets dropdown, and confirm zero daemon duplication
+- [x] `MACUI-01.01` Audit current PPD baseline and eliminate invalid dimensions (`w229h459_l`, `w255h581_l`, `w277h538_l`) in `cupstestppd`
+- [x] `MACUI-01.02` Structure Apple standard UI groups (`*OpenGroup: Color/Color Options`, `*OpenGroup: Media/Media and Quality`) in `genppd.c`
+- [x] `MACUI-01.03` Inject `*cupsBackSide: Normal` and configure `*Duplex` directives to activate native macOS Two-Sided controls
+- [x] `MACUI-01.04` Standardize `ColorModel` options to clean `Gray` (Black and White) and `RGB` (Color) entries with proper default selection
+- [x] `MACUI-01.05` Generate unified Apple Print Presets (`*APPrinterPreset`) for 1-click preset switching without duplicate keys
+- [x] `MACUI-01.06` Regenerate active PPDs (`/etc/cups/ppd/Canon_G1010.ppd` and `/etc/cups/ppd/Canon_G1010_2.ppd`) and reload CUPS daemon
+- [x] `MACUI-01.07` Verify macOS print dialog UI controls, Presets dropdown, and confirm zero daemon duplication
 
 ## Footer Navigation
 
